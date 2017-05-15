@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button android:id="@+id/recycler_tag_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/chip_button"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

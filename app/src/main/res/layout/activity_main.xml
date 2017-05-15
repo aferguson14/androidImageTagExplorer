@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="edu.ucsb.cs.cs190i.samuel_dong.imagetagexplorer.MainActivity">
+    tools:context="edu.ucsb.cs.cs190i.aferguson.imagetagexplorer.MainActivity">
 
     <TextView
         android:id="@+id/textView"
@@ -15,7 +15,9 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -29,5 +31,67 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:srcCompat="@android:color/background_light" />
+        app:srcCompat="@android:color/background_light"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="8dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/camera_button"
+        app:backgroundTint="@color/colorBlueGreen"
+        app:srcCompat="@android:drawable/ic_menu_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4sp"
+        app:layout_constraintBottom_toTopOf="@+id/gallery_button"
+        app:layout_constraintRight_toRightOf="@+id/gallery_button"
+        />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/gallery_button"
+        app:srcCompat="@android:drawable/ic_menu_gallery"
+        app:backgroundTint="@color/colorBlueGreen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10sp"
+        android:layout_marginRight="5sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginEnd="5sp" />
+
+    <AutoCompleteTextView
+        android:id="@+id/main_tag_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="Tag"
+        android:backgroundTint="@color/colorBlueGreen"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/main_tag_recycler"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scrollbars="horizontal"
+        android:orientation="horizontal"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        android:layout_marginTop="3sp"
+        app:layout_constraintTop_toBottomOf="@id/main_tag_text">
+
+    </android.support.v7.widget.RecyclerView>
+
+
+
 </android.support.constraint.ConstraintLayout>

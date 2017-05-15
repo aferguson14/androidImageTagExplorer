@@ -1,4 +1,4 @@
-package edu.ucsb.cs.cs190i.samuel_dong.imagetagexplorer;
+package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

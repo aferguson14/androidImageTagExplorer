@@ -1,4 +1,4 @@
-package edu.ucsb.cs.cs190i.samuel_dong.imagetagexplorer;
+package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
 /**
  * Created by jalexander on 5/2/17.
