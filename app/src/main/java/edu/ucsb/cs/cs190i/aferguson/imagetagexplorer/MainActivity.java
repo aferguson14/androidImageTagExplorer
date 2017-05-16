@@ -1,7 +1,6 @@
 package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -16,11 +15,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,8 +22,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MainTagAdapter tagButtonAdapter;
-    private RecyclerView tagSuggestionRecycler;
+    private FilterTagAdapter tagButtonAdapter;
+    private RecyclerView tagFilterRecycler;
+    private RecyclerView imageRecyclerView;
+    private ImageAdapter imageAdapter;
     private String[] tagSortArray;
     private int numImages;
     private ImageTagDatabaseHelper db;
@@ -71,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
         //tag filter reycler
         tagSortArray = new String[1];
-        tagSuggestionRecycler = (RecyclerView)findViewById(R.id.tag_suggestion_recycler);
-//        final MainTagAdapter tagButtonAdapter = new MainTagAdapter(tagSortArray);
+        tagFilterRecycler = (RecyclerView)findViewById(R.id.tag_filter_recycler);
+//        final FilterTagAdapter tagButtonAdapter = new FilterTagAdapter(tagSortArray);
 //        db.Subscribe(tagButtonAdapter); //listen for db changes
 //        tagSuggestionRecycler.setAdapter(tagButtonAdapter);
 
@@ -93,9 +89,9 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mainTagTextView.setText("");
                 tagSortArray[0] = (String)parent.getItemAtPosition(position);
-                tagButtonAdapter = new MainTagAdapter(tagSortArray);
+                tagButtonAdapter = new FilterTagAdapter(tagSortArray);
                 db.Subscribe(tagButtonAdapter); //listen for db changes
-                tagSuggestionRecycler.setAdapter(tagButtonAdapter);
+                tagFilterRecycler.setAdapter(tagButtonAdapter);
                 tagButtonAdapter.notifyDataSetChanged();
 
             }
@@ -104,10 +100,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         //image recycler view
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.image_recycler);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
-        ImageAdapter imageAdapter = new ImageAdapter(MainActivity.this, db.getAllImages());
-        mRecyclerView.setAdapter(imageAdapter);
+        imageRecyclerView = (RecyclerView) findViewById(R.id.image_recycler);
+        imageRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
+        imageAdapter = new ImageAdapter(MainActivity.this, db);
+        imageRecyclerView.setAdapter(imageAdapter);
         db.Subscribe(imageAdapter);
 
 
@@ -213,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (image != null) {
                                         String fname = "Test"+ I_CLOSURE + ".jpg";
                                         db.addImage(fname);
+                                        imageAdapter.notifyDataSetChanged();
                                 try (FileOutputStream stream = openFileOutput(fname, Context.MODE_PRIVATE)) {
                                     image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                                     image.image.recycle();
@@ -236,12 +233,15 @@ public class MainActivity extends AppCompatActivity {
                 });
                 dbTags=db.getAllTags();
                 tagSuggestionAdapter.notifyDataSetChanged();
+                imageAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_clear_db:
                 Log.d("optionItemSelected", "inclearDB");
                 db.deleteAll();
                 dbTags=db.getAllTags();
                 tagSuggestionAdapter.notifyDataSetChanged();
+                imageAdapter.notifyDataSetChanged();
+
                 Log.d("database", Integer.toString(db.getAllTags().size()));
 
                 return true;

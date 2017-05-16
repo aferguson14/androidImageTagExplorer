@@ -2,7 +2,6 @@ package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
@@ -13,7 +12,7 @@ import android.widget.Button;
 
 //resource used: http://stackoverflow.com/questions/26245139/how-to-create-recyclerview-with-multiple-view-type
 
-public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHolder> implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
+public class FilterTagAdapter extends RecyclerView.Adapter<FilterTagAdapter.ViewHolder> implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
     private String[] mDataset;
 
     // Provide a reference to the views for each data item
@@ -35,13 +34,13 @@ public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHold
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MainTagAdapter(String[] myDataset) {
+    public FilterTagAdapter(String[] myDataset) {
         mDataset = myDataset;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public MainTagAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FilterTagAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view (inflate layout)
         Button v = (Button) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycler_tag_button, parent, false);

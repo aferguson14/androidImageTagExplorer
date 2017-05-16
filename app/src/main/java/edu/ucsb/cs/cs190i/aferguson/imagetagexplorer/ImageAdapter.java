@@ -21,6 +21,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
         implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
     private List<String> mDataset;
     private Context mContext;
+    private ImageTagDatabaseHelper mDb;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -35,9 +36,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ImageAdapter(Context context, List<String> myDataset) {
+    public ImageAdapter(Context context, ImageTagDatabaseHelper db) {
         mContext = context;
-        mDataset = myDataset;
+        //mDataset = myDataset;
+        mDb = db;
+        mDataset = db.getAllImages();
     }
 
     // Create new views (invoked by the layout manager)
@@ -48,7 +51,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
                 .inflate(R.layout.recycler_imageview, parent, false);
 
         // set the view's size, margins, paddings and layout parameters
-
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
@@ -71,5 +73,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
 
     @Override
     public void OnDatabaseChange(){
+        mDataset = mDb.getAllImages();
     }
 }
