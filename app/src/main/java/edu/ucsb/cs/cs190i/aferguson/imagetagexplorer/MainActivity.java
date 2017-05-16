@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -29,6 +30,16 @@ public class MainActivity extends AppCompatActivity {
 
     private MainTagAdapter tagButtonAdapter;
     private RecyclerView tagSuggestionRecycler;
+    private String[] tagSortArray;
+    private int numImages;
+    private ImageTagDatabaseHelper db;
+    private ArrayAdapter<String> tagSuggestionAdapter;
+    private AutoCompleteTextView mainTagTextView;
+
+    private List<String> dbTags;
+
+    private int dbNumImages;
+    private int dbNumTags;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +48,9 @@ public class MainActivity extends AppCompatActivity {
 
         //database TODO
         ImageTagDatabaseHelper.Initialize(this);
-        final ImageTagDatabaseHelper db = ImageTagDatabaseHelper.GetInstance();
+        db = ImageTagDatabaseHelper.GetInstance();
+
+
 
         //toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -48,45 +61,37 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton galleryButton = (FloatingActionButton) findViewById(R.id.gallery_button);
 
         //tag suggest drop down
-        final ArrayAdapter<String> tagSuggestionAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_dropdown_item_1line, db.getAllTags());
-        final AutoCompleteTextView mainTagTextView = (AutoCompleteTextView) findViewById(R.id.main_tag_text);
+        dbTags=db.getAllTags();
+        tagSuggestionAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_dropdown_item_1line, dbTags); //db.getAllTags()
+        mainTagTextView = (AutoCompleteTextView) findViewById(R.id.main_tag_text);
         mainTagTextView.setAdapter(tagSuggestionAdapter);
         //db.Subscribe(tagSuggestionAdapter);
 
 
-        db.addTag("Octopus"); //test tag
-
         //tag filter reycler
-        final String[] tagSortArray = new String[1];
+        tagSortArray = new String[1];
         tagSuggestionRecycler = (RecyclerView)findViewById(R.id.tag_suggestion_recycler);
 //        final MainTagAdapter tagButtonAdapter = new MainTagAdapter(tagSortArray);
 //        db.Subscribe(tagButtonAdapter); //listen for db changes
 //        tagSuggestionRecycler.setAdapter(tagButtonAdapter);
 
 
-        Log.d("test", "test");
         //handle autocomplete click
-        mainTagTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-            @Override
-            public void onItemSelected (AdapterView<?> parent, View view, int position, long id) {
-                Log.d("tagSortArray", "onitemselect");
-                tagSortArray[0] = (String)parent.getItemAtPosition(position);
-                //mainTagTextView.dismissDropDown();
-                //tagButtonAdapter.notifyDataSetChanged();
-            }
-            @Override
-            public void onNothingSelected (AdapterView<?> parent) {
-            }
-        });
+//        mainTagTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+//            @Override
+//            public void onItemSelected (AdapterView<?> parent, View view, int position, long id) {
+//                tagSortArray[0] = (String)parent.getItemAtPosition(position);
+//            }
+//            @Override
+//            public void onNothingSelected (AdapterView<?> parent) {
+//            }
+//        });
 
         mainTagTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("tagSortArray", "onitemclick");
                 mainTagTextView.setText("");
-                Log.d("tagSortArray", (String)parent.getItemAtPosition(position));
-                Log.d("tagSortArray", "test");
                 tagSortArray[0] = (String)parent.getItemAtPosition(position);
                 tagButtonAdapter = new MainTagAdapter(tagSortArray);
                 db.Subscribe(tagButtonAdapter); //listen for db changes
@@ -97,48 +102,58 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+
+        //image recycler view
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.image_recycler);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
+        ImageAdapter imageAdapter = new ImageAdapter(MainActivity.this, db.getAllImages());
+        mRecyclerView.setAdapter(imageAdapter);
+        db.Subscribe(imageAdapter);
+
+
         //images
-        final TextView textView = (TextView)findViewById(R.id.textView);
-        final ImageView imageView = (ImageView)findViewById(R.id.imageView);
+        //final TextView textView = (TextView)findViewById(R.id.textView);
+        //final ImageView imageView = (ImageView)findViewById(R.id.imageView);
 
-
-        TaggedImageRetriever.getNumImages(new TaggedImageRetriever.ImageNumResultListener() {
-            @Override
-            public void onImageNum(int num) {
-                textView.setText(textView.getText() + "\n\n" + num);
-
-                for (int i = 0; i < num; i++) {
-
-                    final int I_CLOSURE = i;
-                    // this is referred to as an inner class closure. See, e.g. discussion at
-                    // http://stackoverflow.com/questions/2804923/how-does-java-implement-inner-class-closures
-
-                    TaggedImageRetriever.getTaggedImageByIndex(i, new TaggedImageRetriever.TaggedImageResultListener() {
-                        @Override
-                        public void onTaggedImage(TaggedImageRetriever.TaggedImage image) {
-                            if (image != null) {
-                                String fname = "Test"+ I_CLOSURE + ".jpg";
-                                try (FileOutputStream stream = openFileOutput(fname, Context.MODE_PRIVATE)) {
-                                    image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                                    image.image.recycle();
-                                } catch (IOException e) {
-                                }
-                                Picasso.with(MainActivity.this).load(getFileStreamPath(fname)).into(imageView);
-                                // Careful! Picasso is using a worker thread. So this is creating more asynchronicity!
-                                StringBuilder tagList = new StringBuilder();
-                                for (String p : image.tags) {
-                                    tagList.append(p + "\n");
-
-                                    db.addTag(p); //test
-                                    tagSuggestionAdapter.notifyDataSetChanged();
-                                }
-                                textView.setText(textView.getText() + "\n\n" + tagList.toString());
-                            }
-                        }
-                    });
-                }
-            }
-        });
+////UPDATED
+//        TaggedImageRetriever.getNumImages(new TaggedImageRetriever.ImageNumResultListener() {
+//            @Override
+//            public void onImageNum(int num) {
+//                //textView.setText(textView.getText() + "\n\n" + num);
+//                numImages = num;
+//                for (int i = 0; i < num; i++) {
+//
+//                    final int I_CLOSURE = i;
+//                    // this is referred to as an inner class closure. See, e.g. discussion at
+//                    // http://stackoverflow.com/questions/2804923/how-does-java-implement-inner-class-closures
+//
+//                    TaggedImageRetriever.getTaggedImageByIndex(i, new TaggedImageRetriever.TaggedImageResultListener() {
+//                        @Override
+//                        public void onTaggedImage(TaggedImageRetriever.TaggedImage image) {
+//                            if (image != null) {
+//                                String fname = "Test"+ I_CLOSURE + ".jpg";
+//                                db.addImage(fname);
+////                                try (FileOutputStream stream = openFileOutput(fname, Context.MODE_PRIVATE)) {
+////                                    image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+////                                    image.image.recycle();
+////                                } catch (IOException e) {
+////                                }
+//                                //Picasso.with(MainActivity.this).load(getFileStreamPath(fname)).into(imageView);
+//                                // Careful! Picasso is using a worker thread. So this is creating more asynchronicity!
+//                                StringBuilder tagList = new StringBuilder();
+//                                for (String p : image.tags) {
+//                                    tagList.append(p + "\n");
+//
+//                                    db.addTag(p); //test
+//                                    tagSuggestionAdapter.notifyDataSetChanged();
+//                                }
+//                                //textView.setText(textView.getText() + "\n\n" + tagList.toString());
+//                            }
+//                        }
+//                    });
+//                }
+//            }
+//        });
 
         //SKELETON
 //        TaggedImageRetriever.getNumImages(new TaggedImageRetriever.ImageNumResultListener() {
@@ -180,10 +195,55 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
             case R.id.action_populate_db:
-                //fill in
+                Log.d("optionItemSelected", "inpopulateDB");
+                TaggedImageRetriever.getNumImages(new TaggedImageRetriever.ImageNumResultListener() {
+                    @Override
+                    public void onImageNum(int num) {
+                        //textView.setText(textView.getText() + "\n\n" + num);
+                        numImages = num;
+                        for (int i = 0; i < num; i++) {
+
+                            final int I_CLOSURE = i;
+                            // this is referred to as an inner class closure. See, e.g. discussion at
+                            // http://stackoverflow.com/questions/2804923/how-does-java-implement-inner-class-closures
+
+                            TaggedImageRetriever.getTaggedImageByIndex(i, new TaggedImageRetriever.TaggedImageResultListener() {
+                                @Override
+                                public void onTaggedImage(TaggedImageRetriever.TaggedImage image) {
+                                    if (image != null) {
+                                        String fname = "Test"+ I_CLOSURE + ".jpg";
+                                        db.addImage(fname);
+                                try (FileOutputStream stream = openFileOutput(fname, Context.MODE_PRIVATE)) {
+                                    image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                                    image.image.recycle();
+                                } catch (IOException e) {
+                                }
+                                        //Picasso.with(MainActivity.this).load(getFileStreamPath(fname)).into(imageView);
+                                        // Careful! Picasso is using a worker thread. So this is creating more asynchronicity!
+                                        StringBuilder tagList = new StringBuilder();
+                                        for (String p : image.tags) {
+                                            tagList.append(p + "\n");
+
+                                            db.addTag(p); //test
+
+                                        }
+                                        //textView.setText(textView.getText() + "\n\n" + tagList.toString());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+                dbTags=db.getAllTags();
+                tagSuggestionAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_clear_db:
-                //fill in
+                Log.d("optionItemSelected", "inclearDB");
+                db.deleteAll();
+                dbTags=db.getAllTags();
+                tagSuggestionAdapter.notifyDataSetChanged();
+                Log.d("database", Integer.toString(db.getAllTags().size()));
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

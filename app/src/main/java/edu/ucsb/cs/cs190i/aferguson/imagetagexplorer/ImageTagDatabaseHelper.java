@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.media.Image;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,14 +81,15 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
     /* CRUD OPERATIONS */
 
     //IMAGES
-    public void addImage(ImageObject imageObject){
+    public void addImage(String image){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         //values.put("Id", imageObject.getID());
-        values.put("Uri", imageObject.getUri());
+        values.put("Uri", image);
 
         db.insert("Image", null, values);
         db.close();
+        NotifyListeners();
     }
 
     ImageObject getImage(String uri){
@@ -117,6 +119,8 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
+
+        db.close();
         // return image list
         return imageList;
     }
@@ -136,6 +140,7 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
 
         db.insert("Tag", null, values);
         db.close();
+        NotifyListeners();
     }
 
     public  List<String> getAllTags(){
@@ -154,6 +159,7 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
+        db.close();
         // return tag list
         return tagList;
     }
@@ -164,5 +170,14 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
 //        db.delete("Tag", "Id" + " = ?", tag);
 //        db.close();
 //    }
+
+    public void deleteAll(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from Image");
+        db.execSQL("delete from Tag");
+        db.execSQL("delete from Link");
+        db.close();
+        NotifyListeners();
+    }
 
 }

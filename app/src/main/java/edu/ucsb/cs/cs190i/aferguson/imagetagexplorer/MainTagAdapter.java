@@ -25,6 +25,12 @@ public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHold
         public ViewHolder(Button v) {
             super(v);
             mButton = v;
+
+//            mButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                }
+//            });
         }
     }
 
@@ -35,8 +41,7 @@ public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHold
 
     // Create new views (invoked by the layout manager)
     @Override
-    public MainTagAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
+    public MainTagAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view (inflate layout)
         Button v = (Button) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycler_tag_button, parent, false);
@@ -68,8 +73,9 @@ public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHold
 //TODO
     @Override
     public void OnDatabaseChange(){
-
     }
+
+
 
 }
 
