@@ -3,4 +3,5 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/chip_button"
+    android:textColor="@android:color/white"
     xmlns:android="http://schemas.android.com/apk/res/android" />

@@ -13,8 +13,8 @@ import android.widget.Button;
 
 //resource used: http://stackoverflow.com/questions/26245139/how-to-create-recyclerview-with-multiple-view-type
 
-public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHolder> {
-    private Button[] mDataset;
+public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHolder> implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
+    private String[] mDataset;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -29,7 +29,7 @@ public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHold
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MainTagAdapter(Button[] myDataset) {
+    public MainTagAdapter(String[] myDataset) {
         mDataset = myDataset;
     }
 
@@ -38,14 +38,14 @@ public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHold
     public MainTagAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                    int viewType) {
         // create a new view (inflate layout)
-        View v = (View) LayoutInflater.from(parent.getContext())
+        Button v = (Button) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycler_tag_button, parent, false);
         //get button from view
-        Button tagButtonView = (Button)v.findViewById(R.id.recycler_tag_button);
+        //Button tagButtonView = (Button)v.findViewById(R.id.recycler_tag_button);
 
         // set the view's size, margins, paddings and layout parameters
 
-        ViewHolder vh = new ViewHolder(tagButtonView);
+        ViewHolder vh = new ViewHolder(v);
         return vh;
     }
 
@@ -55,7 +55,7 @@ public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.mButton.setText(mDataset[position].getText());
+        holder.mButton.setText(mDataset[position]);
 
     }
 
@@ -64,6 +64,13 @@ public class MainTagAdapter extends RecyclerView.Adapter<MainTagAdapter.ViewHold
     public int getItemCount() {
         return mDataset.length;
     }
+
+//TODO
+    @Override
+    public void OnDatabaseChange(){
+
+    }
+
 }
 
 

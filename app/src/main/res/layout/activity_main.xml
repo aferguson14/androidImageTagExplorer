@@ -81,7 +81,7 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/main_tag_recycler"
+        android:id="@+id/tag_suggestion_recycler"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scrollbars="horizontal"
@@ -91,7 +91,6 @@
         app:layout_constraintTop_toBottomOf="@id/main_tag_text">
 
     </android.support.v7.widget.RecyclerView>
-
 
 
 </android.support.constraint.ConstraintLayout>

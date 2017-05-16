@@ -1,14 +1,18 @@
 package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -19,6 +23,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         //database TODO
         ImageTagDatabaseHelper.Initialize(this);
-        ImageTagDatabaseHelper db = ImageTagDatabaseHelper.GetInstance();
+        final ImageTagDatabaseHelper db = ImageTagDatabaseHelper.GetInstance();
 
         //toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -39,26 +44,55 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton cameraButton = (FloatingActionButton) findViewById(R.id.camera_button);
         FloatingActionButton galleryButton = (FloatingActionButton) findViewById(R.id.gallery_button);
 
-        //tag text TODO
-        db.addTag("Octopus"); //test tag
-        ArrayAdapter<String> mainTagAdapter = new ArrayAdapter<String>(this,
+        //tag suggest drop down
+        final ArrayAdapter<String> tagSuggestionAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_dropdown_item_1line, db.getAllTags());
         final AutoCompleteTextView mainTagTextView = (AutoCompleteTextView) findViewById(R.id.main_tag_text);
-        mainTagTextView.setAdapter(mainTagAdapter);
+        mainTagTextView.setAdapter(tagSuggestionAdapter);
+        //db.Subscribe(tagSuggestionAdapter);
 
+
+        db.addTag("Octopus"); //test tag
+
+        //tag filter reycler
+        final String[] tagSortArray = new String[1];
+        RecyclerView tagSuggestionRecycler = (RecyclerView)findViewById(R.id.tag_suggestion_recycler);
+        final MainTagAdapter tagButtonAdapter = new MainTagAdapter(tagSortArray);
+        db.Subscribe(tagButtonAdapter); //listen for db changes
+        tagSuggestionRecycler.setAdapter(tagButtonAdapter);
+
+
+        Log.d("test", "test");
         //handle autocomplete click
-//        mainTagText.setOnItemClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                addTag();
-//                mainTagText.setText(""); //once tag is selected, clear
-//            }
-//        });
+        mainTagTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected (AdapterView<?> parent, View view, int position, long id) {
+                Log.d("tagSortArray", "onitemselect");
+                tagSortArray[0] = (String)parent.getItemAtPosition(position);
+                //mainTagTextView.dismissDropDown();
+                tagButtonAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onNothingSelected (AdapterView<?> parent) {
+            }
+        });
+
+        mainTagTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("tagSortArray", "onitemclick");
+                mainTagTextView.setText("");
+                Log.d("tagSortArray", (String)parent.getItemAtPosition(position));
+                Log.d("tagSortArray", "test");
+                tagSortArray[0] = (String)parent.getItemAtPosition(position);
+
+                tagButtonAdapter.notifyDataSetChanged();
+
+            }
+        });
 
 
         //images
-        ImageTagDatabaseHelper.Initialize(this);
-
         final TextView textView = (TextView)findViewById(R.id.textView);
         final ImageView imageView = (ImageView)findViewById(R.id.imageView);
 
@@ -89,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
                                 StringBuilder tagList = new StringBuilder();
                                 for (String p : image.tags) {
                                     tagList.append(p + "\n");
+
+                                    db.addTag(p); //test
+                                    tagSuggestionAdapter.notifyDataSetChanged();
                                 }
                                 textView.setText(textView.getText() + "\n\n" + tagList.toString());
                             }
