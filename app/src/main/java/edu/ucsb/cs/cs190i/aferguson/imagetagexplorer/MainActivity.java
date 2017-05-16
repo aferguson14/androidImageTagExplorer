@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private String[] tagSortArray;
     private int numImages;
     private ImageTagDatabaseHelper db;
-    private ArrayAdapter<String> tagSuggestionAdapter;
+    private TagSuggestionAdapter tagSuggestionAdapter;
     private AutoCompleteTextView mainTagTextView;
 
     private List<String> dbTags;
@@ -57,12 +57,15 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton galleryButton = (FloatingActionButton) findViewById(R.id.gallery_button);
 
         //tag suggest drop down
-        dbTags=db.getAllTags();
-        tagSuggestionAdapter = new ArrayAdapter<String>(this,
+//        tagSuggestionAdapter = new ArrayAdapter<String>(this,
+//                android.R.layout.simple_dropdown_item_1line, dbTags); //db.getAllTags()
+        //tagSuggestionAdapter = new TagSuggestionAdapter1(db.getAllTags());
+        this.dbTags = db.getAllTags();
+        tagSuggestionAdapter = new TagSuggestionAdapter(MainActivity.this,
                 android.R.layout.simple_dropdown_item_1line, dbTags); //db.getAllTags()
         mainTagTextView = (AutoCompleteTextView) findViewById(R.id.main_tag_text);
         mainTagTextView.setAdapter(tagSuggestionAdapter);
-        //db.Subscribe(tagSuggestionAdapter);
+        db.Subscribe(tagSuggestionAdapter);
 
 
         //tag filter reycler
@@ -222,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
                                             tagList.append(p + "\n");
 
                                             db.addTag(p); //test
+                                            //tagSuggestionAdapter.notifyDataSetChanged();
 
                                         }
                                         //textView.setText(textView.getText() + "\n\n" + tagList.toString());
@@ -231,15 +235,17 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-                dbTags=db.getAllTags();
-                tagSuggestionAdapter.notifyDataSetChanged();
+                tagSuggestionAdapter.updateTagsList(db.getAllTags());
+//                tagSuggestionAdapter.notifyDataSetChanged();
                 imageAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_clear_db:
                 Log.d("optionItemSelected", "inclearDB");
                 db.deleteAll();
-                dbTags=db.getAllTags();
-                tagSuggestionAdapter.notifyDataSetChanged();
+                dbTags.clear();
+                dbTags.addAll(db.getAllTags());
+                tagSuggestionAdapter.updateTagsList(db.getAllTags());
+//                tagSuggestionAdapter.notifyDataSetChanged();
                 imageAdapter.notifyDataSetChanged();
 
                 Log.d("database", Integer.toString(db.getAllTags().size()));
@@ -262,5 +268,10 @@ public class MainActivity extends AppCompatActivity {
         // Show your dialog here (this is called right after onActivityResult)
     }
 
+    public void updateTagsList(List<String> newList){
+        dbTags.clear();
+        dbTags.addAll(newList);
+
+    }
 
 }

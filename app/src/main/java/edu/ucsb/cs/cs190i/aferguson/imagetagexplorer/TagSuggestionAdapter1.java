@@ -1,26 +1,21 @@
 package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
-import android.app.Activity;
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-
-import com.squareup.picasso.Picasso;
+import android.widget.TextView;
 
 import java.util.List;
 
 /**
- * Created by Ferg on 5/14/17.
+ * Created by Ferg on 5/12/17.
  */
 
-public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
-        implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
+
+//resource used: http://stackoverflow.com/questions/26245139/how-to-create-recyclerview-with-multiple-view-type
+
+public class TagSuggestionAdapter1 extends RecyclerView.Adapter<TagSuggestionAdapter1.ViewHolder> implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
     private List<String> mDataset;
-    private Context mContext;
     private ImageTagDatabaseHelper mDb;
 
     // Provide a reference to the views for each data item
@@ -28,29 +23,33 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
     // you provide access to all the views for a data item in a view holder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public ImageView mImage;
-        public ViewHolder(ImageView v) {
+        public TextView mText;
+        public ViewHolder(TextView v) {
             super(v);
-            mImage = v;
+            mText = v;
+
+//            mButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                }
+//            });
         }
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ImageAdapter(Context context, ImageTagDatabaseHelper db) {
-        mContext = context;
-        //mDataset = myDataset;
-        mDb = db;
-        mDataset = db.getAllImages();
+    public TagSuggestionAdapter1(List<String> myDataset) {
+        mDataset = myDataset;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public ImageAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TagSuggestionAdapter1.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view (inflate layout)
-        ImageView v = (ImageView) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycler_imageview, parent, false);
+        TextView v = (TextView) LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.recycler_tag_suggestion, parent, false);
 
         // set the view's size, margins, paddings and layout parameters
+
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
@@ -61,8 +60,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
+        holder.mText.setText(mDataset.get(position));
 
-        Picasso.with(mContext).load(mContext.getFileStreamPath(mDataset.get(position))).into(holder.mImage);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -71,9 +70,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
         return mDataset.size();
     }
 
+    //TODO
     @Override
     public void OnDatabaseChange(){
         mDataset = mDb.getAllImages();
     }
 
+
+
 }
+
+
