@@ -27,6 +27,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private MainTagAdapter tagButtonAdapter;
+    private RecyclerView tagSuggestionRecycler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,10 +59,10 @@ public class MainActivity extends AppCompatActivity {
 
         //tag filter reycler
         final String[] tagSortArray = new String[1];
-        RecyclerView tagSuggestionRecycler = (RecyclerView)findViewById(R.id.tag_suggestion_recycler);
-        final MainTagAdapter tagButtonAdapter = new MainTagAdapter(tagSortArray);
-        db.Subscribe(tagButtonAdapter); //listen for db changes
-        tagSuggestionRecycler.setAdapter(tagButtonAdapter);
+        tagSuggestionRecycler = (RecyclerView)findViewById(R.id.tag_suggestion_recycler);
+//        final MainTagAdapter tagButtonAdapter = new MainTagAdapter(tagSortArray);
+//        db.Subscribe(tagButtonAdapter); //listen for db changes
+//        tagSuggestionRecycler.setAdapter(tagButtonAdapter);
 
 
         Log.d("test", "test");
@@ -70,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("tagSortArray", "onitemselect");
                 tagSortArray[0] = (String)parent.getItemAtPosition(position);
                 //mainTagTextView.dismissDropDown();
-                tagButtonAdapter.notifyDataSetChanged();
+                //tagButtonAdapter.notifyDataSetChanged();
             }
             @Override
             public void onNothingSelected (AdapterView<?> parent) {
@@ -85,7 +88,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("tagSortArray", (String)parent.getItemAtPosition(position));
                 Log.d("tagSortArray", "test");
                 tagSortArray[0] = (String)parent.getItemAtPosition(position);
-
+                tagButtonAdapter = new MainTagAdapter(tagSortArray);
+                db.Subscribe(tagButtonAdapter); //listen for db changes
+                tagSuggestionRecycler.setAdapter(tagButtonAdapter);
                 tagButtonAdapter.notifyDataSetChanged();
 
             }
