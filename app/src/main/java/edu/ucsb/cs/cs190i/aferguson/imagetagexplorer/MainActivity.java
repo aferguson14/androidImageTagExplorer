@@ -1,5 +1,8 @@
 package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -105,6 +108,19 @@ public class MainActivity extends AppCompatActivity {
         //image recycler view
         imageRecyclerView = (RecyclerView) findViewById(R.id.image_recycler);
         imageRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
+
+        imageRecyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(this, imageRecyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        openPhotoDialog(db.getImageById(position));
+                    }
+
+                    @Override public void onLongItemClick(View view, int position) {
+                        // do whatever
+                    }
+                })
+        );
+
         imageAdapter = new ImageAdapter(MainActivity.this, db);
         imageRecyclerView.setAdapter(imageAdapter);
         db.Subscribe(imageAdapter);
@@ -271,6 +287,20 @@ public class MainActivity extends AppCompatActivity {
     public void updateTagsList(List<String> newList){
         dbTags.clear();
         dbTags.addAll(newList);
+
+    }
+
+    public void openPhotoDialog(String uri){
+        FragmentManager fragMan = getFragmentManager();
+        FragmentTransaction fragTransaction = fragMan.beginTransaction();
+
+        Fragment photoFrag = new EditPhotoDialogFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putString("image", uri);
+        photoFrag.setArguments(bundle);
+
+        fragTransaction.add(1, photoFrag).commit();
 
     }
 

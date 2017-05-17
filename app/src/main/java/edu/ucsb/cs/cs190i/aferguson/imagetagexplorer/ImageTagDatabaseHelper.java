@@ -103,6 +103,30 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         return imageObject;
     }
 
+    public String getImageById(int id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String imageUri = "";
+        Log.d("dbquery", Integer.toString(id));
+
+        //Cursor cursor = db.query("Image", new String[] {"Id"}, "Id" + "=?", new String[]{Integer.toString(id)}, null, null, null, null);
+        String selectQuery = "SELECT Uri FROM Image WHERE Id=?";
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{Integer.toString(id)});
+        try{
+            cursor.moveToFirst();
+            imageUri = cursor.getString(cursor.getColumnIndex("Uri"));
+            Log.d("imageUri", imageUri);
+            return imageUri;
+        }finally{
+            cursor.close();
+            db.close();
+        }
+//        Log.d("dbquery", Integer.toString(cursor.getCount()));
+//        Log.d("dbquery", Integer.toString(cursor.getColumnCount()));
+//        db.close();
+//        return imageUri;
+
+    }
+
     public  List<String> getAllImages(){
         List<String> imageList = new ArrayList<String>();
         // Select All Query
@@ -119,7 +143,7 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
-
+        cursor.close();
         db.close();
         // return image list
         return imageList;
@@ -158,7 +182,7 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
                 tagList.add(cursor.getString(1));
             } while (cursor.moveToNext());
         }
-
+        cursor.close();
         db.close();
         // return tag list
         return tagList;
@@ -173,9 +197,12 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteAll(){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("delete from Image");
-        db.execSQL("delete from Tag");
-        db.execSQL("delete from Link");
+        db.execSQL("DROP TABLE Image");
+        db.execSQL("DROP TABLE Tag");
+        db.execSQL("DROP TABLE Link");
+        db.execSQL(CreateImageTable);
+        db.execSQL(CreateTagTable);
+        db.execSQL(CreateLinkTable);
         db.close();
         NotifyListeners();
     }
