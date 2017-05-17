@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/photo_fragment"
     android:orientation="vertical"
     android:layout_width="fill_parent"
@@ -22,5 +23,14 @@
         android:inputType="textPersonName"
         android:hint="Tag"
         android:backgroundTint="@color/colorBlueGreen" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/tag_filter_recycler_fragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scrollbars="horizontal"
+        android:orientation="horizontal"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        android:layout_marginTop="0sp"/>
 
 </LinearLayout>

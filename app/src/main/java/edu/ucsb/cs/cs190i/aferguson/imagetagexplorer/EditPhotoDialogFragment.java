@@ -4,6 +4,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,9 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Ferg on 5/16/17.
  */
@@ -22,10 +26,20 @@ public class EditPhotoDialogFragment extends DialogFragment {
 
     private ImageView imageView;
     private AutoCompleteTextView textField;
-    private String uri;
+    private String mUri;
+    //private String uri;
+    private RecyclerView tagFilterRecycler;
+    private FilterTagAdapter tagButtonAdapter;
+    private ImageTagDatabaseHelper mdb;
+    private List<String> mTags;
 
-    static EditPhotoDialogFragment newInstance() {
-        return new EditPhotoDialogFragment();
+    static EditPhotoDialogFragment newInstance(String uri, List<String> tags) {
+        EditPhotoDialogFragment frag = new EditPhotoDialogFragment();
+        Bundle args = new Bundle();
+        args.putParcelableArrayList("tags", (ArrayList)tags);
+        args.putString("uri", uri);
+        frag.setArguments(args);
+        return frag;
     }
 
     @Override
@@ -33,27 +47,29 @@ public class EditPhotoDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.photo_dialog_fragment, container, false); //need XML file for each fragment
 
         Bundle bundle = this.getArguments();
+
+//        if (bundle != null) {
+//            uri = bundle.getString("image", null);
+//        }
         if (bundle != null) {
-            uri = bundle.getString("image", null);
+            mUri = bundle.getString("uri");
+            mTags = (List)bundle.getParcelableArrayList("tags");
         }
 
-        if(uri!=null){
-            Log.d("photoFrag", uri);
-        }
-        else{
-            Log.d("photoFrag", "Uri Null");
-        }
 
         imageView = (ImageView)view.findViewById(R.id.fragment_image_view);
 
-        Picasso.with(getContext()).load(getContext().getFileStreamPath(uri)).into(imageView);
+        Picasso.with(getContext()).load(getContext().getFileStreamPath(mUri)).into(imageView);
 
         textField = (AutoCompleteTextView) view.findViewById(R.id.main_tag_text);
 //        if (text != null) {
 //            textField.setText(text);
 //        }
 
-
+//        tagFilterRecycler = (RecyclerView)view.findViewById(R.id.tag_filter_recycler_fragment);
+//        tagButtonAdapter = new FilterTagAdapter(tagSortArray);
+//        db.Subscribe(tagButtonAdapter); //listen for db changes
+//        tagFilterRecycler.setAdapter(tagButtonAdapter);
         return view;
     }
 

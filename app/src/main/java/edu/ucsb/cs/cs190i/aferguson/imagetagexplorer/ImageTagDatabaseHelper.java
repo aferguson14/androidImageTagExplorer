@@ -163,6 +163,7 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public  List<String> getAllTags(){
+
         List<String> tagList = new ArrayList<String>();
         // Select All Query
         String selectQuery = "SELECT  * FROM " + "Tag";
@@ -180,6 +181,27 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         // return tag list
+        return tagList;
+    }
+
+    public List<String> getTagsForImageById(int imageId){
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<String> tagList = new ArrayList<String>();
+
+        String selectQuery = "SELECT Text FROM Tag WHERE Id in ( " +
+                                "SELECT TagId FROM LINK WHERE ImageId=?)";
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{Integer.toString(imageId)});
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                // Adding image to list
+                tagList.add(cursor.getString(cursor.getColumnIndex("Text")));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
         return tagList;
     }
 

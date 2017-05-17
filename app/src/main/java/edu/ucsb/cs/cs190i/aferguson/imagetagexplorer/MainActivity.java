@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         imageRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, imageRecyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        openPhotoDialog(db.getImageById(position+1)); //SQL auto increment starts at 1
+                        openPhotoDialog(db.getImageById(position+1), db.getTagsForImageById(position+1)); //SQL auto increment starts at 1
                     }
 
                     @Override public void onLongItemClick(View view, int position) {
@@ -291,15 +291,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void openPhotoDialog(String uri){
+    public void openPhotoDialog(String uri, List<String> tags){
         FragmentManager fragMan = getFragmentManager();
         FragmentTransaction fragTransaction = fragMan.beginTransaction();
 
-        DialogFragment photoFrag = EditPhotoDialogFragment.newInstance();//new EditPhotoDialogFragment();
 
-        Bundle bundle = new Bundle();
-        bundle.putString("image", uri);
-        photoFrag.setArguments(bundle);
+        DialogFragment photoFrag = EditPhotoDialogFragment.newInstance(uri, tags);//new EditPhotoDialogFragment();
+
+//        Bundle bundle = new Bundle();
+//        bundle.putString("image", uri);
+//        photoFrag.setArguments(bundle);
 
         photoFrag.show(getFragmentManager(), "dialog");
 
