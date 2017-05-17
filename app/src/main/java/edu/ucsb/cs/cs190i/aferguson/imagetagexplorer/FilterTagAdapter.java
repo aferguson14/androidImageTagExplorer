@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import java.util.List;
+
 /**
  * Created by Ferg on 5/12/17.
  */
@@ -13,7 +15,7 @@ import android.widget.Button;
 //resource used: http://stackoverflow.com/questions/26245139/how-to-create-recyclerview-with-multiple-view-type
 
 public class FilterTagAdapter extends RecyclerView.Adapter<FilterTagAdapter.ViewHolder> implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
-    private String[] mDataset;
+    private List<String> mDataset;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -34,7 +36,7 @@ public class FilterTagAdapter extends RecyclerView.Adapter<FilterTagAdapter.View
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public FilterTagAdapter(String[] myDataset) {
+    public FilterTagAdapter(List<String> myDataset) {
         mDataset = myDataset;
     }
 
@@ -59,14 +61,14 @@ public class FilterTagAdapter extends RecyclerView.Adapter<FilterTagAdapter.View
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.mButton.setText(mDataset[position]);
+        holder.mButton.setText(mDataset.get(position));
 
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mDataset.length;
+        return mDataset.size();
     }
 
 //TODO

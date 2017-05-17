@@ -56,20 +56,18 @@ public class EditPhotoDialogFragment extends DialogFragment {
             mTags = (List)bundle.getParcelableArrayList("tags");
         }
 
+        Log.d("mTags", mTags.get(0));
 
         imageView = (ImageView)view.findViewById(R.id.fragment_image_view);
 
         Picasso.with(getContext()).load(getContext().getFileStreamPath(mUri)).into(imageView);
 
         textField = (AutoCompleteTextView) view.findViewById(R.id.main_tag_text);
-//        if (text != null) {
-//            textField.setText(text);
-//        }
 
-//        tagFilterRecycler = (RecyclerView)view.findViewById(R.id.tag_filter_recycler_fragment);
-//        tagButtonAdapter = new FilterTagAdapter(tagSortArray);
-//        db.Subscribe(tagButtonAdapter); //listen for db changes
-//        tagFilterRecycler.setAdapter(tagButtonAdapter);
+        tagFilterRecycler = (RecyclerView)view.findViewById(R.id.tag_filter_recycler_fragment);
+        tagButtonAdapter = new FilterTagAdapter(mTags);
+        //db.Subscribe(tagButtonAdapter); //listen for db changes
+        tagFilterRecycler.setAdapter(tagButtonAdapter);
         return view;
     }
 

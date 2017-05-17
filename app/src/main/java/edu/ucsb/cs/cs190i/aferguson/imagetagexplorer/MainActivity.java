@@ -22,6 +22,7 @@ import android.widget.AutoCompleteTextView;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView tagFilterRecycler;
     private RecyclerView imageRecyclerView;
     private ImageAdapter imageAdapter;
-    private String[] tagSortArray;
+    private List<String> tagSortList;
     private int numImages;
     private ImageTagDatabaseHelper db;
     private TagSuggestionAdapter tagSuggestionAdapter;
@@ -73,9 +74,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         //tag filter reycler
-        tagSortArray = new String[1];
+//        tagSortList = new ArrayList<String>();
         tagFilterRecycler = (RecyclerView)findViewById(R.id.tag_filter_recycler);
-//        final FilterTagAdapter tagButtonAdapter = new FilterTagAdapter(tagSortArray);
+//        final FilterTagAdapter tagButtonAdapter = new FilterTagAdapter(tagSortList);
 //        db.Subscribe(tagButtonAdapter); //listen for db changes
 //        tagSuggestionRecycler.setAdapter(tagButtonAdapter);
 
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
 //        mainTagTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
 //            @Override
 //            public void onItemSelected (AdapterView<?> parent, View view, int position, long id) {
-//                tagSortArray[0] = (String)parent.getItemAtPosition(position);
+//                tagSortList[0] = (String)parent.getItemAtPosition(position);
 //            }
 //            @Override
 //            public void onNothingSelected (AdapterView<?> parent) {
@@ -95,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mainTagTextView.setText("");
-                tagSortArray[0] = (String)parent.getItemAtPosition(position);
-                tagButtonAdapter = new FilterTagAdapter(tagSortArray);
+                tagSortList.add(0, (String)parent.getItemAtPosition(position));
+                tagButtonAdapter = new FilterTagAdapter(tagSortList);
                 db.Subscribe(tagButtonAdapter); //listen for db changes
                 tagFilterRecycler.setAdapter(tagButtonAdapter);
                 tagButtonAdapter.notifyDataSetChanged();
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         imageRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, imageRecyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        openPhotoDialog(db.getImageById(position+1), db.getTagsForImageById(position+1)); //SQL auto increment starts at 1
+                        openPhotoDialog(db.getImageUriById(position+1), db.getTagsForImageById(position+1)); //SQL auto increment starts at 1
                     }
 
                     @Override public void onLongItemClick(View view, int position) {
@@ -229,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (image != null) {
                                         String fname = "Test"+ I_CLOSURE + ".jpg";
                                         db.addImage(fname);
+                                        int imageId = db.getImageIdByUri(fname);
                                         imageAdapter.notifyDataSetChanged();
                                 try (FileOutputStream stream = openFileOutput(fname, Context.MODE_PRIVATE)) {
                                     image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -242,6 +244,8 @@ public class MainActivity extends AppCompatActivity {
                                             tagList.append(p + "\n");
 
                                             db.addTag(p); //test
+                                            int tagId = db.getTagId(p);
+                                            db.addImageTagLink(imageId, tagId);
                                             //tagSuggestionAdapter.notifyDataSetChanged();
 
                                         }
@@ -292,8 +296,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openPhotoDialog(String uri, List<String> tags){
-        FragmentManager fragMan = getFragmentManager();
-        FragmentTransaction fragTransaction = fragMan.beginTransaction();
+        //FragmentManager fragMan = getFragmentManager();
+        //FragmentTransaction fragTransaction = fragMan.beginTransaction();
+
+        Log.d("photoTagsSize", Integer.toString(tags.size()));
 
 
         DialogFragment photoFrag = EditPhotoDialogFragment.newInstance(uri, tags);//new EditPhotoDialogFragment();
@@ -308,7 +314,6 @@ public class MainActivity extends AppCompatActivity {
 
         if ( photoFrag.getDialog() != null )
             photoFrag.getDialog().setCanceledOnTouchOutside(true);
-//        photoFrag.dismiss();
 
     }
 

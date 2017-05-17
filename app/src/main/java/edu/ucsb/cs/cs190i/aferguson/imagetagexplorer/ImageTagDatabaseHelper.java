@@ -92,18 +92,24 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         NotifyListeners();
     }
 
-    ImageObject getImage(String uri){
+    public int getImageIdByUri(String uri){
         SQLiteDatabase db = this.getReadableDatabase();
+        int imageId;
 
-        Cursor cursor = db.query("Image", new String[] {"Uri"}, "Uri" + "=?", new String[]{uri}, null, null, null, null);
-        if (cursor != null)
+        //Cursor cursor = db.query("Image", new String[] {"Id"}, "Id" + "=?", new String[]{Integer.toString(id)}, null, null, null, null);
+        String selectQuery = "SELECT Id FROM Image WHERE Uri=?";
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{uri});
+        try{
             cursor.moveToFirst();
-
-        ImageObject imageObject = new ImageObject(Integer.parseInt(cursor.getString(0)),cursor.getString(1));
-        return imageObject;
+            imageId = cursor.getInt(cursor.getColumnIndex("Id"));
+            return imageId;
+        }finally{
+            cursor.close();
+            db.close();
+        }
     }
 
-    public String getImageById(int id){
+    public String getImageUriById(int id){
         SQLiteDatabase db = this.getReadableDatabase();
         String imageUri = "";
         Log.d("dbquery", Integer.toString(id));
@@ -162,6 +168,23 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         NotifyListeners();
     }
 
+    public int getTagId(String tag){
+        SQLiteDatabase db = this.getReadableDatabase();
+        int tagId;
+
+        //Cursor cursor = db.query("Image", new String[] {"Id"}, "Id" + "=?", new String[]{Integer.toString(id)}, null, null, null, null);
+        String selectQuery = "SELECT Id FROM Tag WHERE Text=?";
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{tag});
+        try{
+            cursor.moveToFirst();
+            tagId = cursor.getInt(cursor.getColumnIndex("Id"));
+            return tagId;
+        }finally{
+            cursor.close();
+            db.close();
+        }
+    }
+
     public  List<String> getAllTags(){
 
         List<String> tagList = new ArrayList<String>();
@@ -188,8 +211,8 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         List<String> tagList = new ArrayList<String>();
 
-        String selectQuery = "SELECT Text FROM Tag WHERE Id in ( " +
-                                "SELECT TagId FROM LINK WHERE ImageId=?)";
+        String selectQuery = "SELECT Text FROM Tag WHERE Tag.Id in ( " +
+                                "SELECT TagId FROM Link WHERE ImageId=?)";
         Cursor cursor = db.rawQuery(selectQuery, new String[]{Integer.toString(imageId)});
 
         // looping through all rows and adding to list
@@ -201,8 +224,41 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         }
 
         cursor.close();
+        db.close();
 
         return tagList;
+    }
+
+    public List<String> getTagsIdsForImageById(int imageId){
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<String> tagIdList = new ArrayList<String>();
+
+        String selectQuery = "SELECT TagId FROM Link WHERE ImageId=?";
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{Integer.toString(imageId)});
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                // Adding image to list
+                tagIdList.add(cursor.getString(cursor.getColumnIndex("Text")));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return tagIdList;
+    }
+
+    public void addImageTagLink(int imageId, int tagId){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("ImageId", imageId);
+        values.put("TagId", tagId);
+
+        db.insert("Link", null, values);
+        db.close();
+        NotifyListeners();
     }
 
     // Deleting single tag
