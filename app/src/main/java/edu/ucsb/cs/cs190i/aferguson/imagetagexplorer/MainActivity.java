@@ -1,5 +1,6 @@
 package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         imageRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, imageRecyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        openPhotoDialog(db.getImageById(position));
+                        openPhotoDialog(db.getImageById(position+1)); //SQL auto increment starts at 1
                     }
 
                     @Override public void onLongItemClick(View view, int position) {
@@ -294,13 +295,19 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fragMan = getFragmentManager();
         FragmentTransaction fragTransaction = fragMan.beginTransaction();
 
-        Fragment photoFrag = new EditPhotoDialogFragment();
+        DialogFragment photoFrag = EditPhotoDialogFragment.newInstance();//new EditPhotoDialogFragment();
 
         Bundle bundle = new Bundle();
         bundle.putString("image", uri);
         photoFrag.setArguments(bundle);
 
-        fragTransaction.add(R.id.photo_fragment_container, photoFrag).commit();
+        photoFrag.show(getFragmentManager(), "dialog");
+
+        //fragTransaction.add(R.id.photo_fragment_container, photoFrag).commit();
+
+        if ( photoFrag.getDialog() != null )
+            photoFrag.getDialog().setCanceledOnTouchOutside(true);
+//        photoFrag.dismiss();
 
     }
 

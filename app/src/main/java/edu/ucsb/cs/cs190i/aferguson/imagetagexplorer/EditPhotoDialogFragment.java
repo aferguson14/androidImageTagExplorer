@@ -1,5 +1,6 @@
 package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,16 +18,19 @@ import com.squareup.picasso.Picasso;
  * Created by Ferg on 5/16/17.
  */
 
-public class EditPhotoDialogFragment extends Fragment {
+public class EditPhotoDialogFragment extends DialogFragment {
 
     private ImageView imageView;
     private AutoCompleteTextView textField;
     private String uri;
 
+    static EditPhotoDialogFragment newInstance() {
+        return new EditPhotoDialogFragment();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.photo_dialog_fragment, container, false); //need XML file for each fragment
-
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
@@ -41,7 +45,7 @@ public class EditPhotoDialogFragment extends Fragment {
         }
 
         imageView = (ImageView)view.findViewById(R.id.fragment_image_view);
-        
+
         Picasso.with(getContext()).load(getContext().getFileStreamPath(uri)).into(imageView);
 
         textField = (AutoCompleteTextView) view.findViewById(R.id.main_tag_text);
