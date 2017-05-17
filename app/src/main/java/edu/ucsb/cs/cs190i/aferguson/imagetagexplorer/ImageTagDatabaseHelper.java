@@ -120,11 +120,6 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
             db.close();
         }
-//        Log.d("dbquery", Integer.toString(cursor.getCount()));
-//        Log.d("dbquery", Integer.toString(cursor.getColumnCount()));
-//        db.close();
-//        return imageUri;
-
     }
 
     public  List<String> getAllImages(){

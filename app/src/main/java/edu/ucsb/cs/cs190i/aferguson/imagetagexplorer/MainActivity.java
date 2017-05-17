@@ -300,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
         bundle.putString("image", uri);
         photoFrag.setArguments(bundle);
 
-        fragTransaction.add(1, photoFrag).commit();
+        fragTransaction.add(R.id.photo_fragment_container, photoFrag).commit();
 
     }
 

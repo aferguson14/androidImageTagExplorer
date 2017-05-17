@@ -3,6 +3,7 @@ package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,9 +30,18 @@ public class EditPhotoDialogFragment extends Fragment {
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            uri = bundle.getString("Image", null);
+            uri = bundle.getString("image", null);
         }
 
+        if(uri!=null){
+            Log.d("photoFrag", uri);
+        }
+        else{
+            Log.d("photoFrag", "Uri Null");
+        }
+
+        imageView = (ImageView)view.findViewById(R.id.fragment_image_view);
+        
         Picasso.with(getContext()).load(getContext().getFileStreamPath(uri)).into(imageView);
 
         textField = (AutoCompleteTextView) view.findViewById(R.id.main_tag_text);
