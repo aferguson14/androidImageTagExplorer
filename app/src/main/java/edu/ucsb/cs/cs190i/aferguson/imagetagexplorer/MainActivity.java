@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //database TODO
+        //database
         ImageTagDatabaseHelper.Initialize(this);
         db = ImageTagDatabaseHelper.GetInstance();
 
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
 //            public void onNothingSelected (AdapterView<?> parent) {
 //            }
 //        });
-
+//TODO
         mainTagTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -184,8 +184,11 @@ public class MainActivity extends AppCompatActivity {
                 })
         );
 
-
-        imageAdapter = new ImageAdapter(MainActivity.this, db);
+        //TODO
+        tagSortList = new ArrayList<>();
+        tagSortList.add("dog");
+        //db.getFilteredImages(tagstoTagIds(tagSortList))
+        imageAdapter = new ImageAdapter(MainActivity.this, db, tagstoTagIds(tagSortList));
         imageRecyclerView.setAdapter(imageAdapter);
         db.Subscribe(imageAdapter);
 
@@ -399,6 +402,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public List<Integer> tagstoTagIds(List<String> tags){
+        List<Integer> convertedList = new ArrayList<>();
+        Log.d("filteredimages", Integer.toString(tags.size()));
+        if(tags!=null){
+            if(tags.size()!= 0) {
+                for (int i = 0; i < tags.size(); i++) {
+                    convertedList.add(db.getTagId(tags.get(i)));
+                }
+            }
+        }
+        return convertedList;
+    }
+
     public void addTagToImage(String uri, String tag){
         int imageId = db.getImageIdByUri(uri);
         db.addTag(tag);
@@ -412,6 +428,7 @@ public class MainActivity extends AppCompatActivity {
         int tagId = db.getTagId(tag);
         db.deleteImageTagLink(imageId, tagId);
     }
+
 
     //For Camera & Gallery Intents
     @Override

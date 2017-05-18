@@ -150,6 +150,58 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         return imageList;
     }
 
+    //resource used: http://stackoverflow.com/questions/9203261/android-sqlite-in-clause-using-values-from-array
+    public  List<String> getFilteredImages(List<Integer> tagIds){
+        List<String> imageList = new ArrayList<>();
+        if(tagIds.size()== 0 || tagIds == null){
+            return getAllImages();
+        }
+        String selectQuery = "SELECT * FROM Image WHERE Image.Id IN( " +
+                "SELECT ImageId FROM Link WHERE TagId IN (?))";
+        String tagsIdClause = "";
+        Log.d("filteredimages", "Size: " + Integer.toString(tagIds.size()));
+        if(tagIds != null) {
+            String[] tagsIdArray = new String[tagIds.size()];
+            for (int i = 0; i < tagIds.size(); i++) {
+                tagsIdArray[i] = Integer.toString(tagIds.get(i));
+            }
+            Log.d("filteredimages", "Array at 0:" + tagsIdArray[0]);
+            tagsIdClause = tagsIdArray.toString();
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i<tagsIdArray.length; i++) {
+                if (sb.length() > 0){
+                    sb.append(',');
+                }
+                sb.append(tagsIdArray[i]); 
+            }
+            tagsIdClause = sb.toString();
+            Log.d("filteredimages", "clause:" + tagsIdClause);
+
+        }
+
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Log.d("filteredimages", tagsIdClause);
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{tagsIdClause});
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                // Adding image to list
+                imageList.add(cursor.getString(1));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        Log.d("filteredimages", "imageList: " + imageList.size());
+        // return image list
+        return imageList;
+    }
+
     // Deleting single image
 //    public void deleteImage(String uri) {
 //        SQLiteDatabase db = this.getWritableDatabase();
@@ -174,7 +226,8 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
 
         //Cursor cursor = db.query("Image", new String[] {"Id"}, "Id" + "=?", new String[]{Integer.toString(id)}, null, null, null, null);
         String selectQuery = "SELECT Id FROM Tag WHERE Text=?";
-        Cursor cursor = db.rawQuery(selectQuery, new String[]{tag});
+        Cursor cursor = null;
+        cursor = db.rawQuery(selectQuery, new String[]{tag});
         try{
             cursor.moveToFirst();
             tagId = cursor.getInt(cursor.getColumnIndex("Id"));

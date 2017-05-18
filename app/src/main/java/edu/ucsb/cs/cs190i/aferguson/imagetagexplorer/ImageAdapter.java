@@ -23,6 +23,7 @@ import java.util.List;
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
         implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
     private List<String> mDataset;
+    private List<Integer> mTagIds;
     private Context mContext;
     private ImageTagDatabaseHelper mDb;
 
@@ -39,11 +40,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ImageAdapter(Context context, ImageTagDatabaseHelper db) {
+    public ImageAdapter(Context context, ImageTagDatabaseHelper db, List<Integer> tagIdList) {
         mContext = context;
         //mDataset = myDataset;
         mDb = db;
-        mDataset = db.getAllImages();
+        mTagIds = tagIdList;
+        mDataset = db.getFilteredImages(tagIdList);
     }
 
     // Create new views (invoked by the layout manager)
@@ -82,7 +84,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
 
     @Override
     public void OnDatabaseChange(){
-        mDataset = mDb.getAllImages();
+        mDataset = mDb.getFilteredImages(mTagIds);
     }
 
 }
