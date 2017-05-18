@@ -22,10 +22,11 @@ public class TagSuggestionAdapter extends ArrayAdapter<String> implements ImageT
     private ImageTagDatabaseHelper mDb;
 
 
-    public TagSuggestionAdapter(Context context, int viewResourceId, List<String> dbTags, ImageTagDatabaseHelper db) {
+    public TagSuggestionAdapter(Context context, int viewResourceId, List<String> dbTags) {
         super(context, viewResourceId, dbTags);
         Log.d("tagsuggestion", "in Constructor");
-        mDb = db;
+        Log.d("tagsuggestion", Integer.toString(dbTags.size()));
+//        mDb = db;
         mDataset = dbTags;
         layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         //this.itemsAll = (ArrayList<Customer>) items.clone();
@@ -35,6 +36,7 @@ public class TagSuggestionAdapter extends ArrayAdapter<String> implements ImageT
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Log.d("tagsuggestion", "in getView");
+        Log.d("tagsuggestion", Integer.toString(mDataset.size()));
 
 //        Log.d("tagsuggestion", "first entry: " + mDataset.get(0));
 
@@ -55,7 +57,6 @@ public class TagSuggestionAdapter extends ArrayAdapter<String> implements ImageT
 //        Log.d("tagsuggestion", "onDatabaseChange");
 //        notifyDataSetChanged();
 //        this.clear();
-        mDataset = mDb.getAllTags();
 //        this.addAll(mDataset);
 
     }
@@ -64,6 +65,7 @@ public class TagSuggestionAdapter extends ArrayAdapter<String> implements ImageT
         Log.d("tagsuggestion", "updateTagsLIst");
         mDataset.clear();
         mDataset.addAll(newList);
-//        this.notifyDataSetChanged();
+        Log.d("tagsuggestion", Integer.toString(mDataset.size()));
+        this.notifyDataSetChanged();
     }
 }

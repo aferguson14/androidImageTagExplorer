@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     //CAMERA VARS
     private static final int REQ_CODE_TAKE_PICTURE = 1034;
+    private static final int READ_REQUEST_CODE = 42;
     private String photoFileName;
     private File mediaStorageDir;
 
@@ -103,9 +104,10 @@ public class MainActivity extends AppCompatActivity {
         galleryButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                Intent picIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(picIntent, REQ_CODE_TAKE_PICTURE);
-
+                Intent galleryIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                galleryIntent.setType("image/*");
+                startActivityForResult(galleryIntent, READ_REQUEST_CODE);
             }
         });
 
@@ -123,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             dbTags.add("");
         }
         tagSuggestionAdapter = new TagSuggestionAdapter(this,
-                android.R.layout.simple_dropdown_item_1line, dbTags, db);
+                android.R.layout.simple_dropdown_item_1line, dbTags);
         mainTagTextView = (AutoCompleteTextView) findViewById(R.id.main_tag_text);
         mainTagTextView.setAdapter(tagSuggestionAdapter);
 //        db.Subscribe(tagSuggestionAdapter);
@@ -333,18 +335,20 @@ public class MainActivity extends AppCompatActivity {
 //                tagSuggestionAdapter.addAll(db.getAllTags());
                 dbTags.clear();
                 dbTags.addAll(db.getAllTags());
+                tagSuggestionAdapter.updateTagsList(db.getAllTags());
 //                Log.d("dbTags", "Pop" + dbTags.get(0) + "");
-                tagSuggestionAdapter.notifyDataSetChanged();
+//                tagSuggestionAdapter.notifyDataSetChanged();
                 imageAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_clear_db:
                 Log.d("optionItemSelected", "inclearDB");
                 db.deleteAll();
                 dbTags.clear();
-//                dbTags.addAll(db.getAllTags());
+                dbTags.addAll(db.getAllTags());
+                tagSuggestionAdapter.updateTagsList(db.getAllTags());
 //                tagSuggestionAdapter.clear();
 //                tagSuggestionAdapter.addAll(db.getAllTags());
-                tagSuggestionAdapter.notifyDataSetChanged();
+//                tagSuggestionAdapter.notifyDataSetChanged();
                 imageAdapter.notifyDataSetChanged();
 
 //                Log.d("database", Integer.toString(db.getAllTags().size()));
@@ -368,14 +372,12 @@ public class MainActivity extends AppCompatActivity {
         // Show your dialog here (this is called right after onActivityResult)
     }
 
-//    public void updateTagsList(List<String> newList){
-//        dbTags.clear();
-//        dbTags.addAll(newList);
-//
-//    }
+    public void updateTagsList(List<String> newList){
+        dbTags.clear();
+        dbTags.addAll(newList);
 
-//    @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
-//    @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+
     public void openPhotoDialog(String uri, List<String> tags){
         //FragmentManager fragMan = getFragmentManager();
         //FragmentTransaction fragTransaction = fragMan.beginTransaction();
@@ -401,25 +403,26 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         super.onActivityResult(requestCode, resultCode, intent);
 
-        if(requestCode == REQ_CODE_TAKE_PICTURE){
-            if(resultCode == RESULT_OK){
-                Log.d("camera", "resultCode ok");
-//                ArrayList<String> list = intent.getStringArrayListExtra("SOMETHING");
-
-                Uri takenPhotoUri = getPhotoFileUri(photoFileName);
-                db.addImage(takenPhotoUri.toString());
-                imageAdapter.notifyDataSetChanged();
-            }
-            else{
-                //toast
-            }
-        }
+//        if(requestCode == REQ_CODE_TAKE_PICTURE){
+//            if(resultCode == RESULT_OK){
+//                Log.d("camera", "resultCode ok");
+////                ArrayList<String> list = intent.getStringArrayListExtra("SOMETHING");
+//
+//                Uri takenPhotoUri = getPhotoFileUri(photoFileName);
+//                db.addImage(takenPhotoUri.toString());
+//                imageAdapter.notifyDataSetChanged();
+//            }
+//            else{
+//                //toast
+//            }
+//        }
 
         if (requestCode == REQ_CODE_TAKE_PICTURE) {
             if (resultCode == RESULT_OK) {
                 Uri takenPhotoUri = getPhotoFileUri(photoFileName);
+                db.addImage(takenPhotoUri.toString());
+                imageAdapter.notifyDataSetChanged();
                 List<String> emptyTempList = new ArrayList<String>();
-//                MainActivityPermissionsDispatcher.openPhotoDialog(this);
                 openPhotoDialog(takenPhotoUri.toString(), emptyTempList);
 
 //// by this point we have the camera photo on disk
@@ -432,6 +435,22 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
+
+        if (requestCode == READ_REQUEST_CODE && resultCode == RESULT_OK) {
+            // The document selected by the user won't be returned in the intent.
+            // Instead, a URI to that document will be contained in the return intent
+            // provided to this method as a parameter.
+            // Pull that URI using resultData.getData().
+            Uri uri = null;
+            if (intent != null) {
+                uri = intent.getData();
+                db.addImage(uri.toString());
+                imageAdapter.notifyDataSetChanged();
+                List<String> emptyTempList = new ArrayList<String>();
+                openPhotoDialog(uri.toString(), emptyTempList);
+            }
+        }
+
 
     }
 
