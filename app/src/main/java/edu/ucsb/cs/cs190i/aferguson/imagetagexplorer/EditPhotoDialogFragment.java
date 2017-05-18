@@ -7,12 +7,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -67,7 +70,23 @@ public class EditPhotoDialogFragment extends DialogFragment {
 
 //        Picasso.with(getContext()).load(getContext().getFileStreamPath(mUri)).into(imageView);
 
-        textField = (AutoCompleteTextView) view.findViewById(R.id.main_tag_text);
+        textField = (AutoCompleteTextView) view.findViewById(R.id.fragment_tag_text);
+        textField.setOnEditorActionListener(new AutoCompleteTextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE ||
+                        actionId == EditorInfo.IME_ACTION_GO ||
+                        actionId == EditorInfo.IME_ACTION_NEXT){
+                    ((MainActivity)getActivity()).addTagToImage(mUri, textField.getText().toString());
+                    mTags.add(textField.getText().toString());
+                    textField.setText("");
+                    tagButtonAdapter.notifyDataSetChanged();
+                    return true;
+                }
+                return false;
+            }
+        });
+
 
         tagFilterRecycler = (RecyclerView)view.findViewById(R.id.tag_filter_recycler_fragment);
         tagButtonAdapter = new FilterTagAdapter(mTags);
@@ -87,6 +106,7 @@ public class EditPhotoDialogFragment extends DialogFragment {
                     }
                 })
         );
+
         return view;
     }
 

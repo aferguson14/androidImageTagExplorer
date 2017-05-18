@@ -22,8 +22,9 @@
         android:id="@+id/fragment_tag_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName"
+        android:inputType="textAutoComplete"
         android:hint="Tag"
+        android:imeOptions="actionGo"
         android:backgroundTint="@color/colorBlueGreen" />
 
     <android.support.v7.widget.RecyclerView

@@ -399,6 +399,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void addTagToImage(String uri, String tag){
+        int imageId = db.getImageIdByUri(uri);
+        db.addTag(tag);
+        int tagId = db.getTagId(tag);
+        db.addImageTagLink(imageId, tagId);
+
+    }
+
     public void deleteTagFromImage(String uri, String tag){
         int imageId = db.getImageIdByUri(uri);
         int tagId = db.getTagId(tag);
