@@ -2,6 +2,7 @@ package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -59,8 +60,10 @@ public class EditPhotoDialogFragment extends DialogFragment {
 
         imageView = (ImageView)view.findViewById(R.id.fragment_image_view);
 
-        File f = new File(mUri);
-        Picasso.with(getContext()).load(f).into(imageView);
+
+        Uri imageUri = Uri.parse(mUri);
+        Picasso.with(getContext()).load(imageUri).into(imageView);
+
 
 //        Picasso.with(getContext()).load(getContext().getFileStreamPath(mUri)).into(imageView);
 
