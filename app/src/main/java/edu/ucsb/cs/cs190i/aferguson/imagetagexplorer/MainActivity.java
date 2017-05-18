@@ -31,6 +31,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     //CAMERA VARS
     private static final int REQ_CODE_TAKE_PICTURE = 1034;
     private String photoFileName;
+    private File mediaStorageDir;
 
     private FilterTagAdapter tagButtonAdapter;
     private RecyclerView tagFilterRecycler;
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
     private int curImageNum;
     private Calendar calendar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         //CAMERA
+        mediaStorageDir = new
+                File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
         calendar = Calendar.getInstance();
         cameraButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -282,35 +287,42 @@ public class MainActivity extends AppCompatActivity {
                                     if (image != null) {
                                         String fname = "Test"+ I_CLOSURE + ".jpg";
 
-                                        File mediaStorageDir = new
-                                                File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
-                                        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-                                            Log.d(APP_TAG, "failed to create directory");
+                                        if (isExternalStorageAvailable()) {
+                                            if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+                                                Log.d(APP_TAG, "failed to create directory");
+                                            }
+// Return the file target for the photo based on filename
+                                            File file = new File(mediaStorageDir.getPath() + File.separator + fname);
+                                            Log.d("photouri", "Inside getPhotoFileURI created file");
+// wrap File object into a content provider, required for API >= 24
+                                            Uri takenPhotoUri = FileProvider.getUriForFile(MainActivity.this, "com.codepath.fileprovider", file);
+
+//                                            try (FileOutputStream stream = openFileOutput(mediaStorageDir.getPath() + "/" + fname, Context.MODE_PRIVATE)) {
+//                                                image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+//                                                image.image.recycle();
+                                            try{
+                                                OutputStream outStream = new FileOutputStream(file);
+                                                image.image.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+                                                image.image.recycle();
+                                                outStream.flush();
+                                                outStream.close();
+                                            } catch (IOException e) {
+                                            }
+                                            db.addImage(takenPhotoUri.toString());
+                                            int imageId = db.getImageIdByUri(takenPhotoUri.toString());
+                                            imageAdapter.notifyDataSetChanged();
+
+                                            StringBuilder tagList = new StringBuilder();
+                                            for (String p : image.tags) {
+                                                tagList.append(p + "\n");
+
+                                                db.addTag(p); //test
+                                                int tagId = db.getTagId(p);
+                                                db.addImageTagLink(imageId, tagId);
+                                                tagSuggestionAdapter.notifyDataSetChanged();
+
+                                            }
                                         }
-                                        File file = new File(mediaStorageDir.getPath() + File.separator + fname);
-                                        Uri fileUri = FileProvider.getUriForFile(MainActivity.this, "com.codepath.fileprovider", file);
-
-                                        db.addImage(fileUri.toString());
-                                        int imageId = db.getImageIdByUri(fileUri.toString());
-                                        imageAdapter.notifyDataSetChanged();
-                                try (FileOutputStream stream = openFileOutput(fname, Context.MODE_PRIVATE)) {
-                                    image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                                    image.image.recycle();
-                                } catch (IOException e) {
-                                }
-                                        //Picasso.with(MainActivity.this).load(getFileStreamPath(fname)).into(imageView);
-                                        // Careful! Picasso is using a worker thread. So this is creating more asynchronicity!
-                                        StringBuilder tagList = new StringBuilder();
-                                        for (String p : image.tags) {
-                                            tagList.append(p + "\n");
-
-                                            db.addTag(p); //test
-                                            int tagId = db.getTagId(p);
-                                            db.addImageTagLink(imageId, tagId);
-                                            tagSuggestionAdapter.notifyDataSetChanged();
-
-                                        }
-                                        //textView.setText(textView.getText() + "\n\n" + tagList.toString());
                                     }
                                 }
                             });
@@ -323,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
                 dbTags.addAll(db.getAllTags());
 //                Log.d("dbTags", "Pop" + dbTags.get(0) + "");
                 tagSuggestionAdapter.notifyDataSetChanged();
-//                imageAdapter.notifyDataSetChanged();
+                imageAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_clear_db:
                 Log.d("optionItemSelected", "inclearDB");
@@ -333,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
 //                tagSuggestionAdapter.clear();
 //                tagSuggestionAdapter.addAll(db.getAllTags());
                 tagSuggestionAdapter.notifyDataSetChanged();
-//                imageAdapter.notifyDataSetChanged();
+                imageAdapter.notifyDataSetChanged();
 
 //                Log.d("database", Integer.toString(db.getAllTags().size()));
 
@@ -396,6 +408,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Uri takenPhotoUri = getPhotoFileUri(photoFileName);
                 db.addImage(takenPhotoUri.toString());
+                imageAdapter.notifyDataSetChanged();
             }
             else{
                 //toast
@@ -443,8 +456,8 @@ public class MainActivity extends AppCompatActivity {
 // Get safe storage directory for photos
 // Use `getExternalFilesDir` on Context to access package-specific directories.
 // This way, we don't need to request external read/write runtime permissions.
-            File mediaStorageDir = new
-                    File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
+//            File mediaStorageDir = new
+//                    File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
 // Create the storage directory if it does not exist
             if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
                 Log.d(APP_TAG, "failed to create directory");
