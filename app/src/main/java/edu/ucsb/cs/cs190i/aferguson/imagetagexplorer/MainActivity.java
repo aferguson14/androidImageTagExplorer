@@ -188,8 +188,8 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO
         tagSortList = new ArrayList<>();
-//        tagSortList.add("dog");
-        tagSortList.add("grass");
+        tagSortList.add("dog");
+        tagSortList.add("chihuahua");
         //db.getFilteredImages(tagstoTagIds(tagSortList))
         imageAdapter = new ImageAdapter(MainActivity.this, db, tagstoTagIds(tagSortList));
         imageRecyclerView.setAdapter(imageAdapter);
@@ -410,6 +410,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("filteredimages", Integer.toString(tags.size()));
         if(tags!=null){
             if(tags.size()!= 0) {
+                Log.d("filteredimages", "TAGS SIZE" + Integer.toString(tags.size()));
                 for (int i = 0; i < tags.size(); i++) {
                     convertedList.add(db.getTagId(tags.get(i)));
                 }

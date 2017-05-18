@@ -152,55 +152,106 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
 
     //resource used: http://stackoverflow.com/questions/9203261/android-sqlite-in-clause-using-values-from-array
     public  List<String> getFilteredImages(List<Integer> tagIds){
-        List<String> imageList = new ArrayList<>();
+//        List<String> imageList = new ArrayList<>();
+        List<Integer> imageIdList = new ArrayList<>();
+        List<String> imageIdStr = new ArrayList<>();
+        List<String> tagIdsStr = new ArrayList<>();
+        List<String> imageUriList = new ArrayList<>();
         if(tagIds.size()== 0 || tagIds == null){
             return getAllImages();
         }
-        String selectQuery = "SELECT * FROM Image WHERE Image.Id IN( " +
-                "SELECT ImageId FROM Link WHERE TagId IN (?))";
+//        String selectQuery = "SELECT * FROM Image WHERE Image.Id IN( " +
+//                "SELECT ImageId FROM Link WHERE TagId IN (?" + "))";
 
-        String tagsIdClause = "";
-        Log.d("filteredimages", "Size: " + Integer.toString(tagIds.size()));
-        if(tagIds != null) {
-            String[] tagsIdArray = new String[tagIds.size()];
-            for (int i = 0; i < tagIds.size(); i++) {
-                tagsIdArray[i] = Integer.toString(tagIds.get(i));
-            }
-            Log.d("filteredimages", "Array at 0:" + tagsIdArray[0]);
-            tagsIdClause = tagsIdArray.toString();
+        for(int s : tagIds) tagIdsStr.add(Integer.toString(s));
+        String[] tagIdArray = tagIdsStr.toArray(new String[tagIdsStr.size()]);
 
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i<tagsIdArray.length; i++) {
-                if (sb.length() > 0){
-                    sb.append(',');
-                }
-                sb.append(tagsIdArray[i]);
-            }
-            tagsIdClause = sb.toString();
-            Log.d("filteredimages", "clause:" + tagsIdClause);
+        String selectQuery = "SELECT ImageId FROM Link WHERE TagId IN (" + makePlaceholders(tagIdArray.length) + ")";
 
-        }
+//        String tagsIdClause = "";
+//        Log.d("filteredimages", "Size: " + Integer.toString(tagIds.size()));
+//        if(tagIds != null) {
+//            String[] tagsIdArray = new String[tagIds.size()];
+//            for (int i = 0; i < tagIds.size(); i++) {
+//                tagsIdArray[i] = Integer.toString(tagIds.get(i));
+//            }
+//            Log.d("filteredimages", "Array at 0:" + tagsIdArray[0]);
+////            tagsIdClause = tagsIdArray.toString();
+//
+//            StringBuilder sb = new StringBuilder();
+//            for (int i = 0; i<tagsIdArray.length; i++) {
+//                if (sb.length() > 0){
+//                    sb.append(',');
+//                }
+//                sb.append(tagsIdArray[i]);
+//            }
+//            tagsIdClause = sb.toString();
+//            Log.d("filteredimages", "clause:" + tagsIdClause);
+//
+//        }
 
 
         SQLiteDatabase db = this.getWritableDatabase();
 
-        Log.d("filteredimages", tagsIdClause);
-        Cursor cursor = db.rawQuery(selectQuery, new String[]{tagsIdClause});
+//        Log.d("filteredimages", tagsIdClause);
+        Cursor cursor = db.rawQuery(selectQuery, tagIdArray); //new String[]{tagsIdClause}
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
                 // Adding image to list
-                imageList.add(cursor.getString(1));
+//                imageList.add(cursor.getString(1));
+
+                imageIdList.add(cursor.getInt(cursor.getColumnIndex("ImageId")));
             } while (cursor.moveToNext());
         }
 
-        cursor.close();
-        db.close();
 
-        Log.d("filteredimages", "imageList: " + imageList.size());
+        for(int s : imageIdList) imageIdStr.add(Integer.toString(s));
+        String[] imageIdArray = imageIdStr.toArray(new String[imageIdStr.size()]);
+
+
+        cursor.close();
+
+        //SECOND QUERY
+//        Log.d("filteredimages", "testListSize" + testList.size());
+
+//        String selectQuery1 = "SELECT Uri FROM Image WHERE Id IN ?";
+        String selectQuery1 = "SELECT Uri FROM Image WHERE Id IN (" + makePlaceholders(imageIdArray.length)+ ")";
+//        String ImageIdClause = "";
+//        if(tagIds != null) {
+//            StringBuilder sb = new StringBuilder();
+//            for (int i = 0; i < testList.size(); i++) {
+//                if (sb.length() > 0) {
+//                    sb.append(',');
+//                }
+//                sb.append(testList.get(i));
+//            }
+//            ImageIdClause = sb.toString();
+//
+//            Log.d("filteredimages", "imageClause:" + ImageIdClause);
+//
+////            cursor = db.rawQuery(selectQuery1, new String[]{ImageIdClause}); //new String[]{tagsIdClause}
+//        }
+//        Cursor cursor1 = db.rawQuery(selectQuery1, new String[]{ImageIdClause});
+        Cursor cursor1 = db.rawQuery(selectQuery1, imageIdArray);
+        // looping through all rows and adding to list
+        if (cursor1.moveToFirst()) {
+            Log.d("filteredimages", "inside cursor1if");
+            do {
+                // Adding image to list
+//                imageList.add(cursor.getString(1));
+                imageUriList.add(cursor1.getString(cursor1.getColumnIndex("Uri")));
+                Log.d("filteredimages", "imageUriList: " + cursor1.getString(cursor1.getColumnIndex("Uri")));
+            } while (cursor1.moveToNext());
+        }
+        db.close();
+        cursor1.close();
+
+//        Log.d("filteredimages", "testList: " + testList.size());
+//        Log.d("filteredimages", "imageList: " + imageList.size());
         // return image list
-        return imageList;
+        return imageUriList;
     }
 
     // Deleting single image
@@ -323,4 +374,20 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         NotifyListeners();
     }
 
+
+    //HELPER
+    //taken from: http://stackoverflow.com/questions/27807659/query-a-sqlite-database-using-an-array-android
+    String makePlaceholders(int len) {
+        if (len < 1) {
+            // It will lead to an invalid query anyway ..
+            throw new RuntimeException("No placeholders");
+        } else {
+            StringBuilder sb = new StringBuilder(len * 2 - 1);
+            sb.append("?");
+            for (int i = 1; i < len; i++) {
+                sb.append(",?");
+            }
+            return sb.toString();
+        }
+    }
 }
