@@ -1,10 +1,17 @@
 package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,66 +21,97 @@ import java.util.List;
 
 //resource used: http://stackoverflow.com/questions/26245139/how-to-create-recyclerview-with-multiple-view-type
 
-public class TagSuggestionAdapter1 extends RecyclerView.Adapter<TagSuggestionAdapter1.ViewHolder> implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
-    private List<String> mDataset;
+public class TagSuggestionAdapter1 extends BaseAdapter implements Filterable, ImageTagDatabaseHelper.OnDatabaseChangeListener{
+    private List<String> filteredData;
+    private List<String> originalData;
     private ImageTagDatabaseHelper mDb;
-
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
-        public TextView mText;
-        public ViewHolder(TextView v) {
-            super(v);
-            mText = v;
-
-//            mButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                }
-//            });
-        }
-    }
+    private Context context;
+    private LayoutInflater layoutInflater;
+    private ItemFilter mFilter = new ItemFilter();
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public TagSuggestionAdapter1(List<String> myDataset) {
-        mDataset = myDataset;
+    public TagSuggestionAdapter1(Context context, List<String> myDataset, ImageTagDatabaseHelper db) {
+        this.context = context;
+        this.mDb = db;
+        this.originalData = myDataset;
+        this.filteredData = myDataset;
     }
 
-    // Create new views (invoked by the layout manager)
     @Override
-    public TagSuggestionAdapter1.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        // create a new view (inflate layout)
-        TextView v = (TextView) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycler_tag_suggestion, parent, false);
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View view = convertView;
 
-        // set the view's size, margins, paddings and layout parameters
-
-        ViewHolder vh = new ViewHolder(v);
-        return vh;
+        if (view == null && filteredData.size()!=0) {
+            view = LayoutInflater.from(context).inflate(R.layout.recycler_tag_suggestion, null);
+        }
+        if(filteredData.size()!=0){
+            TextView tag = (TextView) view.findViewById(R.id.recycler_tag_suggestion);
+            tag.setText(filteredData.get(position));
+        }
+        return view;
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
-    //This is where we load image w/Picasso, store ImageView into ViewHolder
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
-        holder.mText.setText(mDataset.get(position));
-
+    public int getCount() {
+        return filteredData.size(); //returns total of items in the list
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
-    public int getItemCount() {
-        return mDataset.size();
+    public Object getItem(int position) {
+        return filteredData.get(position); //returns list item at the specified position
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    public Filter getFilter() {
+        return mFilter;
+    }
+
+    private class ItemFilter extends Filter {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+
+            String filterString = constraint.toString().toLowerCase();
+
+            FilterResults results = new FilterResults();
+
+            final List<String> list = originalData;
+
+            int count = list.size();
+            final List<String> nlist = new ArrayList<String>(count);
+
+            String filterableString ;
+
+            for (int i = 0; i < count; i++) {
+                filterableString = list.get(i);
+                if (filterableString.toLowerCase().contains(filterString)) {
+                    nlist.add(filterableString);
+                }
+            }
+
+            results.values = nlist;
+            results.count = nlist.size();
+
+            return results;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            filteredData = (ArrayList<String>) results.values;
+            notifyDataSetChanged();
+        }
+
     }
 
     //TODO
     @Override
     public void OnDatabaseChange(){
-        mDataset = mDb.getAllImages();
+        originalData = mDb.getAllTags();
+        filteredData = mDb.getAllTags();
     }
 
 

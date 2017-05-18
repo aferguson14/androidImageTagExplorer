@@ -229,26 +229,6 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         return tagList;
     }
 
-    public List<String> getTagsIdsForImageById(int imageId){
-        SQLiteDatabase db = this.getReadableDatabase();
-        List<String> tagIdList = new ArrayList<String>();
-
-        String selectQuery = "SELECT TagId FROM Link WHERE ImageId=?";
-        Cursor cursor = db.rawQuery(selectQuery, new String[]{Integer.toString(imageId)});
-
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                // Adding image to list
-                tagIdList.add(cursor.getString(cursor.getColumnIndex("Text")));
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-        db.close();
-
-        return tagIdList;
-    }
 
     public void addImageTagLink(int imageId, int tagId){
         SQLiteDatabase db = this.getWritableDatabase();

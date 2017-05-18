@@ -1,13 +1,20 @@
 package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
+import android.Manifest;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.speech.RecognizerIntent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,13 +26,24 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.RuntimePermissions;
+
+@RuntimePermissions
 public class MainActivity extends AppCompatActivity {
+    public final String APP_TAG = "ImageTagExplorer";
+
+    //CAMERA VARS
+    private static final int REQ_CODE_TAKE_PICTURE = 1034;
+    private String photoFileName;
 
     private FilterTagAdapter tagButtonAdapter;
     private RecyclerView tagFilterRecycler;
@@ -41,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
     private int dbNumImages;
     private int dbNumTags;
+
+    private int curImageNum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,16 +81,44 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton cameraButton = (FloatingActionButton) findViewById(R.id.camera_button);
         FloatingActionButton galleryButton = (FloatingActionButton) findViewById(R.id.gallery_button);
 
-        //tag suggest drop down
+
+        //CAMERA
+        cameraButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                MainActivityPermissionsDispatcher.startCameraWithCheck(MainActivity.this);
+            }
+        });
+
+
+        //GALLERY
+        galleryButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                Intent picIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(picIntent, REQ_CODE_TAKE_PICTURE);
+
+            }
+        });
+
+
+
+
+        //MAIN IMAGE FILTER SUGGESTIONS
 //        tagSuggestionAdapter = new ArrayAdapter<String>(this,
 //                android.R.layout.simple_dropdown_item_1line, dbTags); //db.getAllTags()
-        //tagSuggestionAdapter = new TagSuggestionAdapter1(db.getAllTags());
-        this.dbTags = db.getAllTags();
-        tagSuggestionAdapter = new TagSuggestionAdapter(MainActivity.this,
-                android.R.layout.simple_dropdown_item_1line, dbTags); //db.getAllTags()
+//        tagSuggestionAdapter = new TagSuggestionAdapter(MainActivity.this, db.getAllTags(), db);
+        if(db.getAllTags() != null){
+            dbTags = db.getAllTags();
+        }
+        else{
+            dbTags.add("");
+        }
+        tagSuggestionAdapter = new TagSuggestionAdapter(this,
+                android.R.layout.simple_dropdown_item_1line, dbTags, db);
         mainTagTextView = (AutoCompleteTextView) findViewById(R.id.main_tag_text);
         mainTagTextView.setAdapter(tagSuggestionAdapter);
-        db.Subscribe(tagSuggestionAdapter);
+//        db.Subscribe(tagSuggestionAdapter);
 
 
         //tag filter reycler
@@ -246,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
                                             db.addTag(p); //test
                                             int tagId = db.getTagId(p);
                                             db.addImageTagLink(imageId, tagId);
-                                            //tagSuggestionAdapter.notifyDataSetChanged();
+                                            tagSuggestionAdapter.notifyDataSetChanged();
 
                                         }
                                         //textView.setText(textView.getText() + "\n\n" + tagList.toString());
@@ -256,25 +304,31 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-                tagSuggestionAdapter.updateTagsList(db.getAllTags());
-//                tagSuggestionAdapter.notifyDataSetChanged();
-                imageAdapter.notifyDataSetChanged();
+//                tagSuggestionAdapter.clear();
+//                tagSuggestionAdapter.addAll(db.getAllTags());
+                dbTags.clear();
+                dbTags.addAll(db.getAllTags());
+//                Log.d("dbTags", "Pop" + dbTags.get(0) + "");
+                tagSuggestionAdapter.notifyDataSetChanged();
+//                imageAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_clear_db:
                 Log.d("optionItemSelected", "inclearDB");
                 db.deleteAll();
                 dbTags.clear();
-                dbTags.addAll(db.getAllTags());
-                tagSuggestionAdapter.updateTagsList(db.getAllTags());
-//                tagSuggestionAdapter.notifyDataSetChanged();
-                imageAdapter.notifyDataSetChanged();
+//                dbTags.addAll(db.getAllTags());
+//                tagSuggestionAdapter.clear();
+//                tagSuggestionAdapter.addAll(db.getAllTags());
+                tagSuggestionAdapter.notifyDataSetChanged();
+//                imageAdapter.notifyDataSetChanged();
 
-                Log.d("database", Integer.toString(db.getAllTags().size()));
+//                Log.d("database", Integer.toString(db.getAllTags().size()));
 
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+
     }
 
     @Override
@@ -289,18 +343,16 @@ public class MainActivity extends AppCompatActivity {
         // Show your dialog here (this is called right after onActivityResult)
     }
 
-    public void updateTagsList(List<String> newList){
-        dbTags.clear();
-        dbTags.addAll(newList);
+//    public void updateTagsList(List<String> newList){
+//        dbTags.clear();
+//        dbTags.addAll(newList);
+//
+//    }
 
-    }
 
     public void openPhotoDialog(String uri, List<String> tags){
         //FragmentManager fragMan = getFragmentManager();
         //FragmentTransaction fragTransaction = fragMan.beginTransaction();
-
-        Log.d("photoTagsSize", Integer.toString(tags.size()));
-
 
         DialogFragment photoFrag = EditPhotoDialogFragment.newInstance(uri, tags);//new EditPhotoDialogFragment();
 
@@ -315,6 +367,93 @@ public class MainActivity extends AppCompatActivity {
         if ( photoFrag.getDialog() != null )
             photoFrag.getDialog().setCanceledOnTouchOutside(true);
 
+    }
+
+
+    //For Camera & Gallery Intents
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent){
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if(requestCode == REQ_CODE_TAKE_PICTURE){
+            if(resultCode == RESULT_OK){
+                ArrayList<String> list = intent.getStringArrayListExtra("SOMETHING");
+                String spokenText = list.get(0);
+//                textField.setText(spokenText);
+            }
+            else{
+                //toast
+            }
+        }
+
+        if (requestCode == REQ_CODE_TAKE_PICTURE) {
+            if (resultCode == RESULT_OK) {
+                Uri takenPhotoUri = getPhotoFileUri(photoFileName);
+                List<String> emptyTempList = new ArrayList<String>();
+                openPhotoDialog(takenPhotoUri.toString(), emptyTempList);
+
+//// by this point we have the camera photo on disk
+//                Bitmap takenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
+//// RESIZE BITMAP (if desired)
+//// Load the taken image into a preview
+//                ImageView ivPreview = (ImageView) findViewById(R.id.ivPreview);
+//                ivPreview.setImageBitmap(takenImage);
+            } else { // Result was a failure
+                Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
+
+
+
+
+    //CAMERA STUFF
+    @NeedsPermission(Manifest.permission.CAMERA)
+    public void startCamera(){
+        Intent picIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        photoFileName = "Test!.jpg"; //db.getAllImages().size()+1
+        Log.d("photouri", "before putExtra");
+        picIntent.putExtra(MediaStore.EXTRA_OUTPUT, getPhotoFileUri(photoFileName));
+        Log.d("photouri", "after putExtra");
+//                Log.d("photouri", getPhotoFileUri(photoFileName).toString());
+        startActivityForResult(picIntent, REQ_CODE_TAKE_PICTURE);
+    }
+
+    // Returns the Uri for a photo stored on disk given the fileName
+    public Uri getPhotoFileUri(String fileName) {
+
+        Log.d("photouri", "Inside getPhotoFileURI");
+// Only continue if the SD Card is mounted
+        if (isExternalStorageAvailable()) {
+// Get safe storage directory for photos
+// Use `getExternalFilesDir` on Context to access package-specific directories.
+// This way, we don't need to request external read/write runtime permissions.
+            File mediaStorageDir = new
+                    File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
+// Create the storage directory if it does not exist
+            if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+                Log.d(APP_TAG, "failed to create directory");
+            }
+// Return the file target for the photo based on filename
+            File file = new File(mediaStorageDir.getPath() + File.separator + fileName);
+            Log.d("photouri", "Inside getPhotoFileURI created file");
+// wrap File object into a content provider, required for API >= 24
+            return FileProvider.getUriForFile(this, "com.codepath.fileprovider", file);
+        }
+        return null; }
+
+    // Returns true if external storage for photos is available
+    private boolean isExternalStorageAvailable() {
+        String state = Environment.getExternalStorageState();
+        return state.equals(Environment.MEDIA_MOUNTED);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // NOTE: delegate the permission handling to generated method
+        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
 }

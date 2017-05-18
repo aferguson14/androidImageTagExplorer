@@ -56,8 +56,6 @@ public class EditPhotoDialogFragment extends DialogFragment {
             mTags = (List)bundle.getParcelableArrayList("tags");
         }
 
-        Log.d("mTags", mTags.get(0));
-
         imageView = (ImageView)view.findViewById(R.id.fragment_image_view);
 
         Picasso.with(getContext()).load(getContext().getFileStreamPath(mUri)).into(imageView);
