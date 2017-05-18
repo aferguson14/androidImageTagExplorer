@@ -2,7 +2,9 @@ package edu.ucsb.cs.cs190i.aferguson.imagetagexplorer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -62,7 +65,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        Picasso.with(mContext).load(mContext.getFileStreamPath(mDataset.get(position))).into(holder.mImage);
+//        File f = new File(mDataset.get(position));
+        Uri imageUri = Uri.parse(mDataset.get(position));
+
+        Log.d("imageAdapter", imageUri.toString());
+
+//        Picasso.with(mContext).load(mContext.getFileStreamPath(mDataset.get(position))).into(holder.mImage);
+        Picasso.with(mContext).load(imageUri).into(holder.mImage);
     }
 
     // Return the size of your dataset (invoked by the layout manager)

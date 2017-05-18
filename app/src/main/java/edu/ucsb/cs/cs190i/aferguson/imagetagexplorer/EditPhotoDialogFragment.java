@@ -15,19 +15,20 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import permissions.dispatcher.RuntimePermissions;
 
 /**
  * Created by Ferg on 5/16/17.
  */
-
 public class EditPhotoDialogFragment extends DialogFragment {
 
     private ImageView imageView;
     private AutoCompleteTextView textField;
     private String mUri;
-    //private String uri;
     private RecyclerView tagFilterRecycler;
     private FilterTagAdapter tagButtonAdapter;
     private ImageTagDatabaseHelper mdb;
@@ -58,7 +59,10 @@ public class EditPhotoDialogFragment extends DialogFragment {
 
         imageView = (ImageView)view.findViewById(R.id.fragment_image_view);
 
-        Picasso.with(getContext()).load(getContext().getFileStreamPath(mUri)).into(imageView);
+        File f = new File(mUri);
+        Picasso.with(getContext()).load(f).into(imageView);
+
+//        Picasso.with(getContext()).load(getContext().getFileStreamPath(mUri)).into(imageView);
 
         textField = (AutoCompleteTextView) view.findViewById(R.id.main_tag_text);
 
@@ -68,6 +72,7 @@ public class EditPhotoDialogFragment extends DialogFragment {
         tagFilterRecycler.setAdapter(tagButtonAdapter);
         return view;
     }
+
 
 //    public void saveState(Bundle bundle) {
 //        bundle.putString(TextExtra, textField.getText().toString());

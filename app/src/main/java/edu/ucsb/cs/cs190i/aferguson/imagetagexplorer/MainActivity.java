@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import permissions.dispatcher.NeedsPermission;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private int dbNumTags;
 
     private int curImageNum;
+    private Calendar calendar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         ImageTagDatabaseHelper.Initialize(this);
         db = ImageTagDatabaseHelper.GetInstance();
 
-
+//        db.deleteAll();
 
         //toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //CAMERA
+        calendar = Calendar.getInstance();
         cameraButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
@@ -170,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
         );
+
 
         imageAdapter = new ImageAdapter(MainActivity.this, db);
         imageRecyclerView.setAdapter(imageAdapter);
@@ -277,8 +281,17 @@ public class MainActivity extends AppCompatActivity {
                                 public void onTaggedImage(TaggedImageRetriever.TaggedImage image) {
                                     if (image != null) {
                                         String fname = "Test"+ I_CLOSURE + ".jpg";
-                                        db.addImage(fname);
-                                        int imageId = db.getImageIdByUri(fname);
+
+                                        File mediaStorageDir = new
+                                                File( getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
+                                        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+                                            Log.d(APP_TAG, "failed to create directory");
+                                        }
+                                        File file = new File(mediaStorageDir.getPath() + File.separator + fname);
+                                        Uri fileUri = FileProvider.getUriForFile(MainActivity.this, "com.codepath.fileprovider", file);
+
+                                        db.addImage(fileUri.toString());
+                                        int imageId = db.getImageIdByUri(fileUri.toString());
                                         imageAdapter.notifyDataSetChanged();
                                 try (FileOutputStream stream = openFileOutput(fname, Context.MODE_PRIVATE)) {
                                     image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -349,7 +362,8 @@ public class MainActivity extends AppCompatActivity {
 //
 //    }
 
-
+//    @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+//    @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
     public void openPhotoDialog(String uri, List<String> tags){
         //FragmentManager fragMan = getFragmentManager();
         //FragmentTransaction fragTransaction = fragMan.beginTransaction();
@@ -377,9 +391,11 @@ public class MainActivity extends AppCompatActivity {
 
         if(requestCode == REQ_CODE_TAKE_PICTURE){
             if(resultCode == RESULT_OK){
-                ArrayList<String> list = intent.getStringArrayListExtra("SOMETHING");
-                String spokenText = list.get(0);
-//                textField.setText(spokenText);
+                Log.d("camera", "resultCode ok");
+//                ArrayList<String> list = intent.getStringArrayListExtra("SOMETHING");
+
+                Uri takenPhotoUri = getPhotoFileUri(photoFileName);
+                db.addImage(takenPhotoUri.toString());
             }
             else{
                 //toast
@@ -390,6 +406,7 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri takenPhotoUri = getPhotoFileUri(photoFileName);
                 List<String> emptyTempList = new ArrayList<String>();
+//                MainActivityPermissionsDispatcher.openPhotoDialog(this);
                 openPhotoDialog(takenPhotoUri.toString(), emptyTempList);
 
 //// by this point we have the camera photo on disk
@@ -412,11 +429,8 @@ public class MainActivity extends AppCompatActivity {
     @NeedsPermission(Manifest.permission.CAMERA)
     public void startCamera(){
         Intent picIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        photoFileName = "Test!.jpg"; //db.getAllImages().size()+1
-        Log.d("photouri", "before putExtra");
+        photoFileName = "ImageTagExplorer_" + calendar.getTime(); //db.getAllImages().size()+1
         picIntent.putExtra(MediaStore.EXTRA_OUTPUT, getPhotoFileUri(photoFileName));
-        Log.d("photouri", "after putExtra");
-//                Log.d("photouri", getPhotoFileUri(photoFileName).toString());
         startActivityForResult(picIntent, REQ_CODE_TAKE_PICTURE);
     }
 
