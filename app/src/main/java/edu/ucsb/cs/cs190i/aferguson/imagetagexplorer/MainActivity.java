@@ -115,20 +115,23 @@ public class MainActivity extends AppCompatActivity {
 
 
         //MAIN IMAGE FILTER SUGGESTIONS
+//        if(db.getAllTags() != null){
+//            dbTags = db.getAllTags();
+//        }
+//        else{
+//            dbTags.add("");
+//        }
+//        dbTags = new ArrayList<>();
+//        dbTags.addAll(db.getAllTags());
 //        tagSuggestionAdapter = new ArrayAdapter<String>(this,
-//                android.R.layout.simple_dropdown_item_1line, dbTags); //db.getAllTags()
+//                android.R.layout.simple_dropdown_item_1line, db.getAllTags()); //db.getAllTags()
 //        tagSuggestionAdapter = new TagSuggestionAdapter(MainActivity.this, db.getAllTags(), db);
-        if(db.getAllTags() != null){
-            dbTags = db.getAllTags();
-        }
-        else{
-            dbTags.add("");
-        }
+
         tagSuggestionAdapter = new TagSuggestionAdapter(this,
                 android.R.layout.simple_dropdown_item_1line, dbTags);
         mainTagTextView = (AutoCompleteTextView) findViewById(R.id.main_tag_text);
-        mainTagTextView.setAdapter(tagSuggestionAdapter);
-//        db.Subscribe(tagSuggestionAdapter);
+//        mainTagTextView.setAdapter(tagSuggestionAdapter);
+        db.Subscribe(tagSuggestionAdapter);
 
 
         //tag filter reycler
@@ -329,26 +332,30 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
                         }
+//                        dbTags.clear();
+//                        dbTags.addAll(db.getAllTags());
                     }
+
                 });
 //                tagSuggestionAdapter.clear();
 //                tagSuggestionAdapter.addAll(db.getAllTags());
-                dbTags.clear();
-                dbTags.addAll(db.getAllTags());
-                tagSuggestionAdapter.updateTagsList(db.getAllTags());
+//                dbTags.clear();
+//                dbTags.addAll(db.getAllTags());
+//                Log.d("dbTags", dbTags.get(0));
+//                tagSuggestionAdapter.updateTagsList(db.getAllTags());
 //                Log.d("dbTags", "Pop" + dbTags.get(0) + "");
-//                tagSuggestionAdapter.notifyDataSetChanged();
+                tagSuggestionAdapter.notifyDataSetChanged();
                 imageAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_clear_db:
                 Log.d("optionItemSelected", "inclearDB");
                 db.deleteAll();
-                dbTags.clear();
-                dbTags.addAll(db.getAllTags());
-                tagSuggestionAdapter.updateTagsList(db.getAllTags());
+//                dbTags.clear();
+//                dbTags.addAll(db.getAllTags());
+//                tagSuggestionAdapter.updateTagsList(db.getAllTags());
 //                tagSuggestionAdapter.clear();
 //                tagSuggestionAdapter.addAll(db.getAllTags());
-//                tagSuggestionAdapter.notifyDataSetChanged();
+                tagSuggestionAdapter.notifyDataSetChanged();
                 imageAdapter.notifyDataSetChanged();
 
 //                Log.d("database", Integer.toString(db.getAllTags().size()));
@@ -372,11 +379,6 @@ public class MainActivity extends AppCompatActivity {
         // Show your dialog here (this is called right after onActivityResult)
     }
 
-    public void updateTagsList(List<String> newList){
-        dbTags.clear();
-        dbTags.addAll(newList);
-
-    }
 
     public void openPhotoDialog(String uri, List<String> tags){
         //FragmentManager fragMan = getFragmentManager();
@@ -397,6 +399,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void deleteTagFromImage(String uri, String tag){
+        int imageId = db.getImageIdByUri(uri);
+        int tagId = db.getTagId(tag);
+        db.deleteImageTagLink(imageId, tagId);
+    }
 
     //For Camera & Gallery Intents
     @Override

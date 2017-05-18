@@ -25,7 +25,7 @@ public class TagSuggestionAdapter extends ArrayAdapter<String> implements ImageT
     public TagSuggestionAdapter(Context context, int viewResourceId, List<String> dbTags) {
         super(context, viewResourceId, dbTags);
         Log.d("tagsuggestion", "in Constructor");
-        Log.d("tagsuggestion", Integer.toString(dbTags.size()));
+//        Log.d("tagsuggestion", Integer.toString(dbTags.size()));
 //        mDb = db;
         mDataset = dbTags;
         layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -36,7 +36,7 @@ public class TagSuggestionAdapter extends ArrayAdapter<String> implements ImageT
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Log.d("tagsuggestion", "in getView");
-        Log.d("tagsuggestion", Integer.toString(mDataset.size()));
+//        Log.d("tagsuggestion", Integer.toString(mDataset.size()));
 
 //        Log.d("tagsuggestion", "first entry: " + mDataset.get(0));
 
@@ -55,8 +55,9 @@ public class TagSuggestionAdapter extends ArrayAdapter<String> implements ImageT
     @Override
     public void OnDatabaseChange(){
 //        Log.d("tagsuggestion", "onDatabaseChange");
-//        notifyDataSetChanged();
+        notifyDataSetChanged();
 //        this.clear();
+
 //        this.addAll(mDataset);
 
     }

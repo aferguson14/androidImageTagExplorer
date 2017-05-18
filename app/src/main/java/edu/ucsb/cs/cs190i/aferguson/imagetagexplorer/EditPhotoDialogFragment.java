@@ -73,6 +73,20 @@ public class EditPhotoDialogFragment extends DialogFragment {
         tagButtonAdapter = new FilterTagAdapter(mTags);
         //db.Subscribe(tagButtonAdapter); //listen for db changes
         tagFilterRecycler.setAdapter(tagButtonAdapter);
+        tagFilterRecycler.addOnItemTouchListener(
+                new RecyclerItemClickListener(getContext(), tagFilterRecycler ,new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        String tag = mTags.get(position);
+                        ((MainActivity)getActivity()).deleteTagFromImage(mUri, tag);
+                        mTags.remove(position);
+                        tagButtonAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override public void onLongItemClick(View view, int position) {
+                        // do whatever
+                    }
+                })
+        );
         return view;
     }
 

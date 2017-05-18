@@ -241,6 +241,15 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         NotifyListeners();
     }
 
+    public void deleteImageTagLink(int imageId, int tagId){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL("DELETE FROM Link WHERE imageId=" + imageId + " AND tagId=" + tagId);
+
+        db.close();
+        NotifyListeners();
+    }
+
     // Deleting single tag
 //    public void deleteTag(String tag) {
 //        SQLiteDatabase db = this.getWritableDatabase();
