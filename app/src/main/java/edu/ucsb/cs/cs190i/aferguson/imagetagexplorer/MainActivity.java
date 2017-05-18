@@ -175,8 +175,10 @@ public class MainActivity extends AppCompatActivity {
         imageRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(this, imageRecyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        openPhotoDialog(db.getImageUriById(position+1), db.getTagsForImageById(position+1)); //SQL auto increment starts at 1
-                    }
+                        String imageUri = imageAdapter.getImageUriAtPosition(position);
+                        int imageId = db.getImageIdByUri(imageUri);
+                        openPhotoDialog(imageUri, db.getTagsForImageById(imageId)); //SQL auto increment starts at 1
+                    } //db.getImageUriById(position+1), db.getTagsForImageById(position+1)
 
                     @Override public void onLongItemClick(View view, int position) {
                         // do whatever
@@ -186,7 +188,8 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO
         tagSortList = new ArrayList<>();
-        tagSortList.add("dog");
+//        tagSortList.add("dog");
+        tagSortList.add("grass");
         //db.getFilteredImages(tagstoTagIds(tagSortList))
         imageAdapter = new ImageAdapter(MainActivity.this, db, tagstoTagIds(tagSortList));
         imageRecyclerView.setAdapter(imageAdapter);

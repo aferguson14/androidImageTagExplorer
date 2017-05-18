@@ -82,6 +82,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
         return mDataset.size();
     }
 
+    public String getImageUriAtPosition(int position){
+        return mDataset.get(position);
+    }
+
     @Override
     public void OnDatabaseChange(){
         mDataset = mDb.getFilteredImages(mTagIds);

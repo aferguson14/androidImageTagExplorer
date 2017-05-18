@@ -158,6 +158,7 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         }
         String selectQuery = "SELECT * FROM Image WHERE Image.Id IN( " +
                 "SELECT ImageId FROM Link WHERE TagId IN (?))";
+
         String tagsIdClause = "";
         Log.d("filteredimages", "Size: " + Integer.toString(tagIds.size()));
         if(tagIds != null) {
@@ -173,7 +174,7 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
                 if (sb.length() > 0){
                     sb.append(',');
                 }
-                sb.append(tagsIdArray[i]); 
+                sb.append(tagsIdArray[i]);
             }
             tagsIdClause = sb.toString();
             Log.d("filteredimages", "clause:" + tagsIdClause);
