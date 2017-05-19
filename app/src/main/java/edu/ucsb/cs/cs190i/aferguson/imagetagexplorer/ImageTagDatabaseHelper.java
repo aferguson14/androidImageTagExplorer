@@ -48,7 +48,7 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
     private boolean TryUpdate(Cursor cursor) {
         try {
             cursor.moveToFirst();
-        } catch (SQLiteConstraintException exception) {
+        } catch (Exception e) {
             return false;
         } finally {
             cursor.close();
