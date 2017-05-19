@@ -463,9 +463,9 @@ public class MainActivity extends AppCompatActivity {
 //        dbTags.clear();
 //        dbTags.addAll(db.getAllTags());
 //        tagSuggestionAdapter.notifyDataSetChanged();
-        TagSuggestionAdapter tagSuggestionAdapter1 = new TagSuggestionAdapter(this,
+        tagSuggestionAdapter = new TagSuggestionAdapter(this,
                 R.id.tag_filter_list, db.getAllTags(), db);
-        mainTagTextView.setAdapter(tagSuggestionAdapter1);
+        mainTagTextView.setAdapter(tagSuggestionAdapter);
 //        db.Subscribe(tagSuggestionAdapter1);
     }
 

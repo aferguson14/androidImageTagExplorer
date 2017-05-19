@@ -81,6 +81,7 @@ public class EditPhotoDialogFragment extends DialogFragment {
                     mTags.add(textField.getText().toString());
                     textField.setText("");
                     tagButtonAdapter.notifyDataSetChanged();
+                    ((MainActivity)getActivity()).updateImageAdapter();
                     return true;
                 }
                 return false;
@@ -98,6 +99,7 @@ public class EditPhotoDialogFragment extends DialogFragment {
                         String tag = mTags.get(position);
                         ((MainActivity)getActivity()).deleteTagFromImage(mUri, tag);
                         mTags.remove(position);
+                        ((MainActivity)getActivity()).updateImageAdapter();
                         tagButtonAdapter.notifyDataSetChanged();
                     }
 
