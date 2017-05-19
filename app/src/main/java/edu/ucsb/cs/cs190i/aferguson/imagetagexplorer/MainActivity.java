@@ -56,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private List<String> tagSortList = new ArrayList<String>();
     private int numImages;
     private ImageTagDatabaseHelper db;
-    private TagSuggestionAdapter tagSuggestionAdapter;
+//    private TagSuggestionAdapter tagSuggestionAdapter;
+    private ArrayAdapter<String> tagSuggestionAdapter;
     private AutoCompleteTextView mainTagTextView;
 
     private List<String> dbTags = new ArrayList<String>();
@@ -128,8 +129,8 @@ public class MainActivity extends AppCompatActivity {
 //                android.R.layout.simple_dropdown_item_1line, db.getAllTags()); //db.getAllTags()
 //        tagSuggestionAdapter = new TagSuggestionAdapter(MainActivity.this, db.getAllTags(), db);
 
-        tagSuggestionAdapter = new TagSuggestionAdapter(this,
-                R.id.tag_filter_list, dbTags, db); //android.R.layout.simple_spinner_dropdown_item
+//        tagSuggestionAdapter = new TagSuggestionAdapter(this, R.id.tag_filter_list, dbTags, db);
+        tagSuggestionAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, db.getAllTags());
         mainTagTextView = (AutoCompleteTextView) findViewById(R.id.main_tag_text);
         mainTagTextView.setAdapter(tagSuggestionAdapter);
 //        db.Subscribe(tagSuggestionAdapter);
@@ -374,7 +375,8 @@ public class MainActivity extends AppCompatActivity {
 //                Log.d("dbTags", dbTags.get(0));
 //                tagSuggestionAdapter.updateTagsList(db.getAllTags());
 //                Log.d("dbTags", "Pop" + dbTags.get(0) + "");
-                tagSuggestionAdapter.notifyDataSetChanged();
+//                tagSuggestionAdapter.notifyDataSetChanged();
+                updateTagSuggestionAdapter();
                 imageAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_clear_db:
@@ -385,7 +387,8 @@ public class MainActivity extends AppCompatActivity {
 //                tagSuggestionAdapter.updateTagsList(db.getAllTags());
 //                tagSuggestionAdapter.clear();
 //                tagSuggestionAdapter.addAll(db.getAllTags());
-                tagSuggestionAdapter.notifyDataSetChanged();
+//                tagSuggestionAdapter.notifyDataSetChanged();
+                updateTagSuggestionAdapter();
                 imageAdapter.notifyDataSetChanged();
 
 //                Log.d("database", Integer.toString(db.getAllTags().size()));
@@ -463,8 +466,9 @@ public class MainActivity extends AppCompatActivity {
 //        dbTags.clear();
 //        dbTags.addAll(db.getAllTags());
 //        tagSuggestionAdapter.notifyDataSetChanged();
-        tagSuggestionAdapter = new TagSuggestionAdapter(this,
-                R.id.tag_filter_list, db.getAllTags(), db);
+//        tagSuggestionAdapter = new TagSuggestionAdapter(this,
+//                R.id.tag_filter_list, db.getAllTags(), db);
+        tagSuggestionAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, db.getAllTags());
         mainTagTextView.setAdapter(tagSuggestionAdapter);
 //        db.Subscribe(tagSuggestionAdapter1);
     }
