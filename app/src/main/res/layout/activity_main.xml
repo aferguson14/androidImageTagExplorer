@@ -85,4 +85,11 @@
         app:layout_constraintVertical_bias="0.5">
     </FrameLayout>
 
+    <ListView
+        android:id="@+id/tag_filter_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/main_tag_text">
+    </ListView>
+
 </android.support.constraint.ConstraintLayout>

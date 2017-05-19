@@ -53,13 +53,14 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView tagFilterRecycler;
     private RecyclerView imageRecyclerView;
     private ImageAdapter imageAdapter;
-    private List<String> tagSortList;
+    private List<String> tagSortList = new ArrayList<String>();
     private int numImages;
     private ImageTagDatabaseHelper db;
     private TagSuggestionAdapter tagSuggestionAdapter;
     private AutoCompleteTextView mainTagTextView;
 
-    private List<String> dbTags;
+    private List<String> dbTags = new ArrayList<String>();
+    private List<Integer> tagIdSortList = new ArrayList<Integer>();
 
     private int dbNumImages;
     private int dbNumTags;
@@ -128,10 +129,10 @@ public class MainActivity extends AppCompatActivity {
 //        tagSuggestionAdapter = new TagSuggestionAdapter(MainActivity.this, db.getAllTags(), db);
 
         tagSuggestionAdapter = new TagSuggestionAdapter(this,
-                android.R.layout.simple_dropdown_item_1line, dbTags);
+                R.id.tag_filter_list, dbTags, db); //android.R.layout.simple_spinner_dropdown_item
         mainTagTextView = (AutoCompleteTextView) findViewById(R.id.main_tag_text);
-//        mainTagTextView.setAdapter(tagSuggestionAdapter);
-        db.Subscribe(tagSuggestionAdapter);
+        mainTagTextView.setAdapter(tagSuggestionAdapter);
+//        db.Subscribe(tagSuggestionAdapter);
 
 
         //tag filter reycler
@@ -153,18 +154,40 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 //TODO
+
+        tagButtonAdapter = new FilterTagAdapter(tagSortList);
+        db.Subscribe(tagButtonAdapter); //listen for db changes
+        tagFilterRecycler.setAdapter(tagButtonAdapter);
+        tagFilterRecycler.addOnItemTouchListener(
+                new RecyclerItemClickListener(MainActivity.this, tagFilterRecycler ,new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        String tag = tagSortList.get(position);
+                        //remove from query
+                        tagSortList.remove(position);
+                        tagButtonAdapter.notifyDataSetChanged();
+                        updateImageAdapter();
+                    }
+
+                    @Override public void onLongItemClick(View view, int position) {
+                        // do whatever
+                    }
+                })
+        );
+
+
         mainTagTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mainTagTextView.setText("");
                 tagSortList.add(0, (String)parent.getItemAtPosition(position));
-                tagButtonAdapter = new FilterTagAdapter(tagSortList);
-                db.Subscribe(tagButtonAdapter); //listen for db changes
-                tagFilterRecycler.setAdapter(tagButtonAdapter);
+                updateImageAdapter();
                 tagButtonAdapter.notifyDataSetChanged();
+                imageAdapter.notifyDataSetChanged();
 
             }
         });
+
+
 
 
 
@@ -187,12 +210,14 @@ public class MainActivity extends AppCompatActivity {
         );
 
         //TODO
-        tagSortList = new ArrayList<>();
-        tagSortList.add("dog");
+//        tagSortList = new ArrayList<>();
+//        tagSortList.add("dog");
 //        tagSortList.add("chihuahua");
-        tagSortList.add("picture");
+//        tagSortList.add("picture");
 
         //db.getFilteredImages(tagstoTagIds(tagSortList))
+
+        tagIdSortList.addAll(tagstoTagIds(tagSortList));
         imageAdapter = new ImageAdapter(MainActivity.this, db, tagstoTagIds(tagSortList));
         imageRecyclerView.setAdapter(imageAdapter);
         db.Subscribe(imageAdapter);
@@ -304,15 +329,12 @@ public class MainActivity extends AppCompatActivity {
                                             if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
                                                 Log.d(APP_TAG, "failed to create directory");
                                             }
-// Return the file target for the photo based on filename
+                                        // Return the file target for the photo based on filename
                                             File file = new File(mediaStorageDir.getPath() + File.separator + fname);
                                             Log.d("photouri", "Inside getPhotoFileURI created file");
-// wrap File object into a content provider, required for API >= 24
+                                    // wrap File object into a content provider, required for API >= 24
                                             Uri takenPhotoUri = FileProvider.getUriForFile(MainActivity.this, "com.codepath.fileprovider", file);
 
-//                                            try (FileOutputStream stream = openFileOutput(mediaStorageDir.getPath() + "/" + fname, Context.MODE_PRIVATE)) {
-//                                                image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-//                                                image.image.recycle();
                                             try{
                                                 OutputStream outStream = new FileOutputStream(file);
                                                 image.image.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
@@ -436,6 +458,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void updateTagSuggestionAdapter(){
+//        tagSuggestionAdapter.clear();
+//        dbTags.clear();
+//        dbTags.addAll(db.getAllTags());
+//        tagSuggestionAdapter.notifyDataSetChanged();
+        TagSuggestionAdapter tagSuggestionAdapter1 = new TagSuggestionAdapter(this,
+                R.id.tag_filter_list, db.getAllTags(), db);
+        mainTagTextView.setAdapter(tagSuggestionAdapter1);
+//        db.Subscribe(tagSuggestionAdapter1);
+    }
+
+    public void updateImageAdapter(){
+//        tagIdSortList.clear();
+//        tagIdSortList.addAll(tagstoTagIds(tagSortList));
+        imageAdapter= new ImageAdapter(MainActivity.this, db, tagstoTagIds(tagSortList));
+        imageRecyclerView.setAdapter(imageAdapter);
+        db.Subscribe(imageAdapter);
+    }
     //For Camera & Gallery Intents
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent){

@@ -89,6 +89,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
     @Override
     public void OnDatabaseChange(){
         mDataset = mDb.getFilteredImages(mTagIds);
+        ((MainActivity)mContext).updateTagSuggestionAdapter();
     }
 
 }

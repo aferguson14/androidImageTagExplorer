@@ -14,19 +14,21 @@ import java.util.List;
  * Created by Ferg on 5/16/17.
  */
 
-public class TagSuggestionAdapter extends ArrayAdapter<String> implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
+public class TagSuggestionAdapter extends ArrayAdapter<String> {//implements ImageTagDatabaseHelper.OnDatabaseChangeListener{
 
     private LayoutInflater layoutInflater;
     private List<String> mDataset;
 //    private int viewResourceId;
     private ImageTagDatabaseHelper mDb;
+    private Context mContext;
 
 
-    public TagSuggestionAdapter(Context context, int viewResourceId, List<String> dbTags) {
+    public TagSuggestionAdapter(Context context, int viewResourceId, List<String> dbTags, ImageTagDatabaseHelper db) {
         super(context, viewResourceId, dbTags);
         Log.d("tagsuggestion", "in Constructor");
 //        Log.d("tagsuggestion", Integer.toString(dbTags.size()));
-//        mDb = db;
+        mContext = context;
+        mDb = db;
         mDataset = dbTags;
         layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         //this.itemsAll = (ArrayList<Customer>) items.clone();
@@ -52,15 +54,14 @@ public class TagSuggestionAdapter extends ArrayAdapter<String> implements ImageT
         return view;
     }
 
-    @Override
-    public void OnDatabaseChange(){
-//        Log.d("tagsuggestion", "onDatabaseChange");
-        notifyDataSetChanged();
-//        this.clear();
-
-//        this.addAll(mDataset);
-
-    }
+//    @Override
+//    public void OnDatabaseChange(){
+////        Log.d("tagsuggestion", "onDatabaseChange");
+////        this.clear();
+////        this.addAll(mDb.getAllTags());
+////        this.notifyDataSetChanged();
+////        ((MainActivity)mContext).updateTagSuggestionAdapter();
+//    }
 
     public void updateTagsList(List<String> newList){
         Log.d("tagsuggestion", "updateTagsLIst");
