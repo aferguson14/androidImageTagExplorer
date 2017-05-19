@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.media.Image;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -184,6 +185,9 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
+        if(imageIdList.size()==0 || imageIdList == null){
+            return imageUriList; //empty list
+        }
 
         for(int s : imageIdList) imageIdStr.add(Integer.toString(s));
         String[] imageIdArray = imageIdStr.toArray(new String[imageIdStr.size()]);
@@ -236,10 +240,16 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT Id FROM Tag WHERE Text=?";
         Cursor cursor = null;
         cursor = db.rawQuery(selectQuery, new String[]{tag});
+//        if(cursor.getCount() == 0){
+//            return -1;
+//            Toast
+//        }
         try{
             cursor.moveToFirst();
             tagId = cursor.getInt(cursor.getColumnIndex("Id"));
             return tagId;
+
+        }catch(Exception e) { return -1;
         }finally{
             cursor.close();
             db.close();

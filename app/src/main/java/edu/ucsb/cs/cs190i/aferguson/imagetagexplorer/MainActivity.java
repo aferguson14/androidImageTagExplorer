@@ -377,7 +377,8 @@ public class MainActivity extends AppCompatActivity {
 //                Log.d("dbTags", "Pop" + dbTags.get(0) + "");
 //                tagSuggestionAdapter.notifyDataSetChanged();
                 updateTagSuggestionAdapter();
-                imageAdapter.notifyDataSetChanged();
+//                imageAdapter.notifyDataSetChanged();
+                updateImageAdapter();
                 return true;
             case R.id.action_clear_db:
                 Log.d("optionItemSelected", "inclearDB");
@@ -389,7 +390,8 @@ public class MainActivity extends AppCompatActivity {
 //                tagSuggestionAdapter.addAll(db.getAllTags());
 //                tagSuggestionAdapter.notifyDataSetChanged();
                 updateTagSuggestionAdapter();
-                imageAdapter.notifyDataSetChanged();
+//                imageAdapter.notifyDataSetChanged();
+                updateImageAdapter();
 
 //                Log.d("database", Integer.toString(db.getAllTags().size()));
 
