@@ -169,8 +169,8 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
 
 
         String selectQuery = "SELECT ImageId FROM Link WHERE TagId IN (" + makePlaceholders(tagIdArray.length) + ")";
-//        String selectQuery = "SELECT * FROM Link WHERE TagId IN (" + makePlaceholders(tagIdArray.length-1) + ") "
-//                + "GROUP BY ImageId HAVING COUNT(ImageId)>=?";
+//        String selectQuery = "SELECT ImageId FROM Link WHERE TagId IN (" + makePlaceholders(tagIdArray.length-1) + ") "
+//                + "GROUP BY ImageId HAVING COUNT(ImageId)>?";
 
         SQLiteDatabase db = this.getWritableDatabase();
 

@@ -53,9 +53,6 @@ public class EditPhotoDialogFragment extends DialogFragment {
 
         Bundle bundle = this.getArguments();
 
-//        if (bundle != null) {
-//            uri = bundle.getString("image", null);
-//        }
         if (bundle != null) {
             mUri = bundle.getString("uri");
             mTags = (List)bundle.getParcelableArrayList("tags");
@@ -67,8 +64,6 @@ public class EditPhotoDialogFragment extends DialogFragment {
         Uri imageUri = Uri.parse(mUri);
         Picasso.with(getContext()).load(imageUri).into(imageView);
 
-
-//        Picasso.with(getContext()).load(getContext().getFileStreamPath(mUri)).into(imageView);
 
         textField = (AutoCompleteTextView) view.findViewById(R.id.fragment_tag_text);
         textField.setOnEditorActionListener(new AutoCompleteTextView.OnEditorActionListener() {
@@ -91,7 +86,6 @@ public class EditPhotoDialogFragment extends DialogFragment {
 
         tagFilterRecycler = (RecyclerView)view.findViewById(R.id.tag_filter_recycler_fragment);
         tagButtonAdapter = new FilterTagAdapter(mTags);
-        //db.Subscribe(tagButtonAdapter); //listen for db changes
         tagFilterRecycler.setAdapter(tagButtonAdapter);
         tagFilterRecycler.addOnItemTouchListener(
                 new RecyclerItemClickListener(getContext(), tagFilterRecycler ,new RecyclerItemClickListener.OnItemClickListener() {
@@ -111,15 +105,4 @@ public class EditPhotoDialogFragment extends DialogFragment {
 
         return view;
     }
-
-
-//    public void saveState(Bundle bundle) {
-//        bundle.putString(TextExtra, textField.getText().toString());
-//    }
-//
-//    public void restoreState(Bundle bundle) {
-//        if (bundle != null) {
-//            text = bundle.getString(TextExtra);
-//        }
-//    }
 }

@@ -26,12 +26,6 @@ public class FilterTagAdapter extends RecyclerView.Adapter<FilterTagAdapter.View
         public ViewHolder(Button v) {
             super(v);
             mButton = v;
-
-//            mButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                }
-//            });
         }
     }
 
@@ -46,8 +40,6 @@ public class FilterTagAdapter extends RecyclerView.Adapter<FilterTagAdapter.View
         // create a new view (inflate layout)
         Button v = (Button) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycler_tag_button, parent, false);
-        //get button from view
-        //Button tagButtonView = (Button)v.findViewById(R.id.recycler_tag_button);
 
         // set the view's size, margins, paddings and layout parameters
 

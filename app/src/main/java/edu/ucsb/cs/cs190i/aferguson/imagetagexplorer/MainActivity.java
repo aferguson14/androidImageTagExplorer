@@ -79,8 +79,6 @@ public class MainActivity extends AppCompatActivity {
         ImageTagDatabaseHelper.Initialize(this);
         db = ImageTagDatabaseHelper.GetInstance();
 
-//        db.deleteAll();
-
         //toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -114,47 +112,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-
         //MAIN IMAGE FILTER SUGGESTIONS
-//        if(db.getAllTags() != null){
-//            dbTags = db.getAllTags();
-//        }
-//        else{
-//            dbTags.add("");
-//        }
-//        dbTags = new ArrayList<>();
-//        dbTags.addAll(db.getAllTags());
-//        tagSuggestionAdapter = new ArrayAdapter<String>(this,
-//                android.R.layout.simple_dropdown_item_1line, db.getAllTags()); //db.getAllTags()
-//        tagSuggestionAdapter = new TagSuggestionAdapter(MainActivity.this, db.getAllTags(), db);
-
-//        tagSuggestionAdapter = new TagSuggestionAdapter(this, R.id.tag_filter_list, dbTags, db);
         tagSuggestionAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, db.getAllTags());
         mainTagTextView = (AutoCompleteTextView) findViewById(R.id.main_tag_text);
         mainTagTextView.setAdapter(tagSuggestionAdapter);
-//        db.Subscribe(tagSuggestionAdapter);
 
 
         //tag filter reycler
-//        tagSortList = new ArrayList<String>();
         tagFilterRecycler = (RecyclerView)findViewById(R.id.tag_filter_recycler);
-//        final FilterTagAdapter tagButtonAdapter = new FilterTagAdapter(tagSortList);
-//        db.Subscribe(tagButtonAdapter); //listen for db changes
-//        tagSuggestionRecycler.setAdapter(tagButtonAdapter);
-
-
-        //handle autocomplete click
-//        mainTagTextView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-//            @Override
-//            public void onItemSelected (AdapterView<?> parent, View view, int position, long id) {
-//                tagSortList[0] = (String)parent.getItemAtPosition(position);
-//            }
-//            @Override
-//            public void onNothingSelected (AdapterView<?> parent) {
-//            }
-//        });
-//TODO
 
         tagButtonAdapter = new FilterTagAdapter(tagSortList);
         db.Subscribe(tagButtonAdapter); //listen for db changes
@@ -202,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                         String imageUri = imageAdapter.getImageUriAtPosition(position);
                         int imageId = db.getImageIdByUri(imageUri);
                         openPhotoDialog(imageUri, db.getTagsForImageById(imageId)); //SQL auto increment starts at 1
-                    } //db.getImageUriById(position+1), db.getTagsForImageById(position+1)
+                    }
 
                     @Override public void onLongItemClick(View view, int position) {
                         // do whatever
@@ -210,91 +175,11 @@ public class MainActivity extends AppCompatActivity {
                 })
         );
 
-        //TODO
-//        tagSortList = new ArrayList<>();
-//        tagSortList.add("dog");
-//        tagSortList.add("chihuahua");
-//        tagSortList.add("picture");
-
-        //db.getFilteredImages(tagstoTagIds(tagSortList))
-
         tagIdSortList.addAll(tagstoTagIds(tagSortList));
         imageAdapter = new ImageAdapter(MainActivity.this, db, tagstoTagIds(tagSortList));
         imageRecyclerView.setAdapter(imageAdapter);
         db.Subscribe(imageAdapter);
 
-
-        //images
-        //final TextView textView = (TextView)findViewById(R.id.textView);
-        //final ImageView imageView = (ImageView)findViewById(R.id.imageView);
-
-////UPDATED
-//        TaggedImageRetriever.getNumImages(new TaggedImageRetriever.ImageNumResultListener() {
-//            @Override
-//            public void onImageNum(int num) {
-//                //textView.setText(textView.getText() + "\n\n" + num);
-//                numImages = num;
-//                for (int i = 0; i < num; i++) {
-//
-//                    final int I_CLOSURE = i;
-//                    // this is referred to as an inner class closure. See, e.g. discussion at
-//                    // http://stackoverflow.com/questions/2804923/how-does-java-implement-inner-class-closures
-//
-//                    TaggedImageRetriever.getTaggedImageByIndex(i, new TaggedImageRetriever.TaggedImageResultListener() {
-//                        @Override
-//                        public void onTaggedImage(TaggedImageRetriever.TaggedImage image) {
-//                            if (image != null) {
-//                                String fname = "Test"+ I_CLOSURE + ".jpg";
-//                                db.addImage(fname);
-////                                try (FileOutputStream stream = openFileOutput(fname, Context.MODE_PRIVATE)) {
-////                                    image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-////                                    image.image.recycle();
-////                                } catch (IOException e) {
-////                                }
-//                                //Picasso.with(MainActivity.this).load(getFileStreamPath(fname)).into(imageView);
-//                                // Careful! Picasso is using a worker thread. So this is creating more asynchronicity!
-//                                StringBuilder tagList = new StringBuilder();
-//                                for (String p : image.tags) {
-//                                    tagList.append(p + "\n");
-//
-//                                    db.addTag(p); //test
-//                                    tagSuggestionAdapter.notifyDataSetChanged();
-//                                }
-//                                //textView.setText(textView.getText() + "\n\n" + tagList.toString());
-//                            }
-//                        }
-//                    });
-//                }
-//            }
-//        });
-
-        //SKELETON
-//        TaggedImageRetriever.getNumImages(new TaggedImageRetriever.ImageNumResultListener() {
-//            @Override
-//            public void onImageNum(int num) {
-//                //textView.setText(textView.getText() + "\n\n" + num);
-//            }
-//        });
-//
-//        TaggedImageRetriever.getTaggedImageByIndex(0, new TaggedImageRetriever.TaggedImageResultListener() {
-//            @Override
-//            public void onTaggedImage(TaggedImageRetriever.TaggedImage image) {
-//                if (image != null) {
-//                    try (FileOutputStream stream = openFileOutput("Test.jpg", Context.MODE_PRIVATE)){
-//                        image.image.compress(Bitmap.CompressFormat.JPEG, 100, stream); //"" + image.image.hashCode().toString + ".jpg", bring in current system time to make sure unique
-//                        image.image.recycle();
-//                    } catch (IOException e) {
-//                    }
-//                    Picasso.with(MainActivity.this).load(getFileStreamPath("Test.jpg")).resize(500,500).centerCrop().into(imageView);
-//                    // imageView.setImageBitmap(image.image);
-//                    StringBuilder tagList = new StringBuilder();
-//                    for (String p : image.tags) {
-//                        tagList.append(p + "\n");
-//                    }
-//                    //textView.setText(textView.getText() + "\n\n" + tagList.toString());
-//                }
-//            }
-//        });
     }
 
     //resource used: http://stackoverflow.com/questions/31231609/creating-a-button-in-android-toolbar
@@ -363,38 +248,18 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
                         }
-//                        dbTags.clear();
-//                        dbTags.addAll(db.getAllTags());
                     }
 
                 });
-//                tagSuggestionAdapter.clear();
-//                tagSuggestionAdapter.addAll(db.getAllTags());
-//                dbTags.clear();
-//                dbTags.addAll(db.getAllTags());
-//                Log.d("dbTags", dbTags.get(0));
-//                tagSuggestionAdapter.updateTagsList(db.getAllTags());
-//                Log.d("dbTags", "Pop" + dbTags.get(0) + "");
-//                tagSuggestionAdapter.notifyDataSetChanged();
+
                 updateTagSuggestionAdapter();
-//                imageAdapter.notifyDataSetChanged();
                 updateImageAdapter();
                 return true;
             case R.id.action_clear_db:
-                Log.d("optionItemSelected", "inclearDB");
                 db.deleteAll();
-//                dbTags.clear();
-//                dbTags.addAll(db.getAllTags());
-//                tagSuggestionAdapter.updateTagsList(db.getAllTags());
-//                tagSuggestionAdapter.clear();
-//                tagSuggestionAdapter.addAll(db.getAllTags());
-//                tagSuggestionAdapter.notifyDataSetChanged();
+
                 updateTagSuggestionAdapter();
-//                imageAdapter.notifyDataSetChanged();
                 updateImageAdapter();
-
-//                Log.d("database", Integer.toString(db.getAllTags().size()));
-
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -416,18 +281,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void openPhotoDialog(String uri, List<String> tags){
-        //FragmentManager fragMan = getFragmentManager();
-        //FragmentTransaction fragTransaction = fragMan.beginTransaction();
-
-        DialogFragment photoFrag = EditPhotoDialogFragment.newInstance(uri, tags);//new EditPhotoDialogFragment();
-
-//        Bundle bundle = new Bundle();
-//        bundle.putString("image", uri);
-//        photoFrag.setArguments(bundle);
+        DialogFragment photoFrag = EditPhotoDialogFragment.newInstance(uri, tags);
 
         photoFrag.show(getFragmentManager(), "dialog");
-
-        //fragTransaction.add(R.id.photo_fragment_container, photoFrag).commit();
 
         if ( photoFrag.getDialog() != null )
             photoFrag.getDialog().setCanceledOnTouchOutside(true);
@@ -464,20 +320,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void updateTagSuggestionAdapter(){
-//        tagSuggestionAdapter.clear();
-//        dbTags.clear();
-//        dbTags.addAll(db.getAllTags());
-//        tagSuggestionAdapter.notifyDataSetChanged();
-//        tagSuggestionAdapter = new TagSuggestionAdapter(this,
-//                R.id.tag_filter_list, db.getAllTags(), db);
         tagSuggestionAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, db.getAllTags());
         mainTagTextView.setAdapter(tagSuggestionAdapter);
-//        db.Subscribe(tagSuggestionAdapter1);
     }
 
     public void updateImageAdapter(){
-//        tagIdSortList.clear();
-//        tagIdSortList.addAll(tagstoTagIds(tagSortList));
         imageAdapter= new ImageAdapter(MainActivity.this, db, tagstoTagIds(tagSortList));
         imageRecyclerView.setAdapter(imageAdapter);
         db.Subscribe(imageAdapter);
@@ -487,20 +334,6 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         super.onActivityResult(requestCode, resultCode, intent);
 
-//        if(requestCode == REQ_CODE_TAKE_PICTURE){
-//            if(resultCode == RESULT_OK){
-//                Log.d("camera", "resultCode ok");
-////                ArrayList<String> list = intent.getStringArrayListExtra("SOMETHING");
-//
-//                Uri takenPhotoUri = getPhotoFileUri(photoFileName);
-//                db.addImage(takenPhotoUri.toString());
-//                imageAdapter.notifyDataSetChanged();
-//            }
-//            else{
-//                //toast
-//            }
-//        }
-
         if (requestCode == REQ_CODE_TAKE_PICTURE) {
             if (resultCode == RESULT_OK) {
                 Uri takenPhotoUri = getPhotoFileUri(photoFileName);
@@ -508,13 +341,6 @@ public class MainActivity extends AppCompatActivity {
                 imageAdapter.notifyDataSetChanged();
                 List<String> emptyTempList = new ArrayList<String>();
                 openPhotoDialog(takenPhotoUri.toString(), emptyTempList);
-
-//// by this point we have the camera photo on disk
-//                Bitmap takenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
-//// RESIZE BITMAP (if desired)
-//// Load the taken image into a preview
-//                ImageView ivPreview = (ImageView) findViewById(R.id.ivPreview);
-//                ivPreview.setImageBitmap(takenImage);
             } else { // Result was a failure
                 Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }

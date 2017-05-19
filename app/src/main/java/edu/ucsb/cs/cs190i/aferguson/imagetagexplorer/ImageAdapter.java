@@ -66,13 +66,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-
-//        File f = new File(mDataset.get(position));
         Uri imageUri = Uri.parse(mDataset.get(position));
 
         Log.d("imageAdapter", imageUri.toString());
 
-//        Picasso.with(mContext).load(mContext.getFileStreamPath(mDataset.get(position))).into(holder.mImage);
         Picasso.with(mContext).load(imageUri).into(holder.mImage);
     }
 
