@@ -189,7 +189,9 @@ public class MainActivity extends AppCompatActivity {
         //TODO
         tagSortList = new ArrayList<>();
         tagSortList.add("dog");
-        tagSortList.add("chihuahua");
+//        tagSortList.add("chihuahua");
+        tagSortList.add("picture");
+
         //db.getFilteredImages(tagstoTagIds(tagSortList))
         imageAdapter = new ImageAdapter(MainActivity.this, db, tagstoTagIds(tagSortList));
         imageRecyclerView.setAdapter(imageAdapter);
