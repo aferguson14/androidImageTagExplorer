@@ -28,6 +28,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -73,6 +75,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Stetho.initializeWithDefaults(this);
+
+
         setContentView(R.layout.activity_main);
 
         //database
@@ -252,12 +258,16 @@ public class MainActivity extends AppCompatActivity {
 
                 });
 
+                tagButtonAdapter.notifyDataSetChanged();
                 updateTagSuggestionAdapter();
                 updateImageAdapter();
                 return true;
             case R.id.action_clear_db:
                 db.deleteAll();
 
+                tagSortList.clear();
+                tagButtonAdapter.notifyDataSetChanged();
+                imageAdapter.notifyDataSetChanged();
                 updateTagSuggestionAdapter();
                 updateImageAdapter();
                 return true;
@@ -329,6 +339,11 @@ public class MainActivity extends AppCompatActivity {
         imageRecyclerView.setAdapter(imageAdapter);
         db.Subscribe(imageAdapter);
     }
+
+    public List<String> getTags(){
+        return db.getAllTags();
+    }
+
     //For Camera & Gallery Intents
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent){

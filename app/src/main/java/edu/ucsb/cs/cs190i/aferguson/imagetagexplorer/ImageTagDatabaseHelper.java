@@ -11,7 +11,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Samuel on 5/2/2017.
@@ -165,12 +167,16 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
         String[] tagIdArray = tagIdsStr.toArray(new String[tagIdsStr.size()]);
 //        tagIdArray[tagIdsStr.size()] = Integer.toString(tagIds.size());
 
+//        for(String s: tagIdArray){
+//            Log.d("filter", "tagId: " + s);
+//        }
+
 //        Log.d("filteredimages", "countSize: " + tagIdArray[tagIdsStr.size()]);
 
 
         String selectQuery = "SELECT ImageId FROM Link WHERE TagId IN (" + makePlaceholders(tagIdArray.length) + ")";
 //        String selectQuery = "SELECT ImageId FROM Link WHERE TagId IN (" + makePlaceholders(tagIdArray.length-1) + ") "
-//                + "GROUP BY ImageId HAVING COUNT(ImageId)>?";
+//                + "GROUP BY ImageId HAVING COUNT(ImageId)=?";
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -189,8 +195,26 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
             return imageUriList; //empty list
         }
 
-        for(int s : imageIdList) imageIdStr.add(Integer.toString(s));
+        List<Integer> temp = new ArrayList<>();
+        if(tagIds.size() <= 1){
+            for(int i : imageIdList) imageIdStr.add(Integer.toString(i));
+        }
+        else {
+            for (int i = 0; i < imageIdList.size(); i++) {
+                Log.d("filteredimages", "temp size: " + temp.size());
+                if (temp.contains(imageIdList.get(i))) {
+                    Log.d("filteredimages", "temp contains id");
+                    imageIdStr.add(Integer.toString(imageIdList.get(i)));
+                }
+                temp.add(imageIdList.get(i));
+                Log.d("filteredimages", "addingtoTemp");
+//            Log.d("filteredimages", Integer.toString(temp.get(i)));
+            }
+        }
+
+//        for(int i : imageIdList) imageIdStr.add(Integer.toString(i));
         String[] imageIdArray = imageIdStr.toArray(new String[imageIdStr.size()]);
+//        Log.d("filteredimages", "imageIdList: " + imageIdArray[0]);
 
         cursor.close();
 
@@ -249,7 +273,7 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
             tagId = cursor.getInt(cursor.getColumnIndex("Id"));
             return tagId;
 
-        }catch(Exception e) { return -1;
+//        }catch(Exception e) { return null;
         }finally{
             cursor.close();
             db.close();
@@ -346,7 +370,8 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
     String makePlaceholders(int len) {
         if (len < 1) {
             // It will lead to an invalid query anyway ..
-            throw new RuntimeException("No placeholders");
+            //throw new RuntimeException("No placeholders");
+            return"";
         } else {
             StringBuilder sb = new StringBuilder(len * 2 - 1);
             sb.append("?");

@@ -12,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -37,6 +39,7 @@ public class EditPhotoDialogFragment extends DialogFragment {
     private FilterTagAdapter tagButtonAdapter;
     private ImageTagDatabaseHelper mdb;
     private List<String> mTags;
+    private ArrayAdapter<String> tagSuggestionAdapter;
 
     static EditPhotoDialogFragment newInstance(String uri, List<String> tags) {
         EditPhotoDialogFragment frag = new EditPhotoDialogFragment();
@@ -65,7 +68,9 @@ public class EditPhotoDialogFragment extends DialogFragment {
         Picasso.with(getContext()).load(imageUri).into(imageView);
 
 
+        tagSuggestionAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, ((MainActivity)getActivity()).getTags());
         textField = (AutoCompleteTextView) view.findViewById(R.id.fragment_tag_text);
+        textField.setAdapter(tagSuggestionAdapter);
         textField.setOnEditorActionListener(new AutoCompleteTextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -80,6 +85,16 @@ public class EditPhotoDialogFragment extends DialogFragment {
                     return true;
                 }
                 return false;
+            }
+        });
+
+        textField.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                textField.setText("");
+                mTags.add(0, (String)parent.getItemAtPosition(position));
+                tagButtonAdapter.notifyDataSetChanged();
+
             }
         });
 
