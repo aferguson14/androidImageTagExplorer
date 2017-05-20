@@ -11,8 +11,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -195,16 +197,26 @@ public class ImageTagDatabaseHelper extends SQLiteOpenHelper {
             return imageUriList; //empty list
         }
 
-        List<Integer> temp = new ArrayList<>();
-        if(tagIds.size() <= 1){
+        Map<Integer, Integer> tempMap = new HashMap();
+        List<Integer>temp = new ArrayList();
+
+        if(tagIds.size() <= 1){ //one tag
             for(int i : imageIdList) imageIdStr.add(Integer.toString(i));
         }
         else {
+
+            for (int i = 0; i < imageIdList.size(); i++) {
+                tempMap.put(imageIdList.get(i), 1);
+            }
+
             for (int i = 0; i < imageIdList.size(); i++) {
                 Log.d("filteredimages", "temp size: " + temp.size());
                 if (temp.contains(imageIdList.get(i))) {
-                    Log.d("filteredimages", "temp contains id");
-                    imageIdStr.add(Integer.toString(imageIdList.get(i)));
+                    int val = tempMap.get(imageIdList.get(i));
+                    val++;
+                    tempMap.put(imageIdList.get(i), val);
+                    if(tempMap.get(imageIdList.get(i)) == tagIds.size())
+                        imageIdStr.add(Integer.toString(imageIdList.get(i)));
                 }
                 temp.add(imageIdList.get(i));
                 Log.d("filteredimages", "addingtoTemp");
